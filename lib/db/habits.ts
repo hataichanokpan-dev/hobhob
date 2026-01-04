@@ -26,11 +26,15 @@ export async function createNewHabit(
     icon: input.icon,
     color: input.color,
     frequency: input.frequency,
-    targetDays: input.targetDays,
     isActive: true,
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
+
+  // Only include targetDays if provided (for weekly habits)
+  if (input.targetDays) {
+    habit.targetDays = input.targetDays;
+  }
 
   await createHabit(uid, habit);
   return habit.id;

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export const metadata: Metadata = {
   title: "HobHob - Habit Tracker",
@@ -8,15 +9,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icons/icon.svg", sizes: "any", type: "image/svg+xml" },
+      { url: "/icons/hobhob_v2.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icons/icon.svg", sizes: "any", type: "image/svg+xml" },
+      { url: "/icons/hobhob_v2.png", sizes: "512x512", type: "image/png" },
     ],
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "HobHob",
   },
   formatDetection: {
@@ -30,7 +31,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#0a0a0b",
+  themeColor: "#fbfbf7",
 };
 
 export default function RootLayout({
@@ -39,12 +40,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="min-h-screen overflow-x-hidden ios-fix">
-        <AuthProvider>
-          <div className="ambient-glow-subtle" />
-          <div className="relative min-h-screen">{children}</div>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="ambient-glow-subtle" />
+            <div className="relative min-h-screen">{children}</div>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

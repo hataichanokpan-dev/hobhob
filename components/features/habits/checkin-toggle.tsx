@@ -11,6 +11,17 @@ interface CheckinToggleProps {
   disabled?: boolean;
 }
 
+// Color mapping based on hobhob icon palette
+const COLOR_MAP: Record<string, string> = {
+  orange: "#FF6600",
+  "orange-light": "#FF9933",
+  yellow: "#FFCC00",
+  pink: "#FF66B2",
+  green: "#33CC33",
+  blue: "#3399FF",
+  red: "#FF3333",
+};
+
 export function CheckinToggle({
   habit,
   checked,
@@ -26,6 +37,8 @@ export function CheckinToggle({
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+  const color = COLOR_MAP[habit.color] || COLOR_MAP.orange;
+
   return (
     <button
       onClick={handleToggle}
@@ -34,18 +47,16 @@ export function CheckinToggle({
         isAnimating ? "scale-90" : "scale-100"
       }`}
       style={{
-        borderColor: checked ? habit.color : undefined,
+        borderColor: checked ? color : undefined,
         boxShadow: checked
-          ? `0 0 20px ${habit.color === "purple" ? "#8b5cf6" : habit.color === "blue" ? "#3b82f6" : habit.color === "pink" ? "#ec4899" : habit.color === "green" ? "#22c55e" : habit.color === "orange" ? "#f97316" : "#ef4444"}40`
+          ? `0 0 20px ${color}40`
           : undefined,
       }}
     >
       {checked && (
         <Check
           className="w-6 h-6 text-white"
-          style={{
-            color: habit.color === "purple" ? "#8b5cf6" : habit.color === "blue" ? "#3b82f6" : habit.color === "pink" ? "#ec4899" : habit.color === "green" ? "#22c55e" : habit.color === "orange" ? "#f97316" : "#ef4444",
-          }}
+          style={{ color }}
         />
       )}
     </button>

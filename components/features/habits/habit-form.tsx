@@ -12,12 +12,13 @@ const HABIT_ICONS = [
 ];
 
 const HABIT_COLORS = [
-  { name: "Purple", value: "purple", bg: "bg-purple-500", text: "text-purple-500" },
-  { name: "Blue", value: "blue", bg: "bg-blue-500", text: "text-blue-500" },
-  { name: "Pink", value: "pink", bg: "bg-pink-500", text: "text-pink-500" },
-  { name: "Green", value: "green", bg: "bg-green-500", text: "text-green-500" },
-  { name: "Orange", value: "orange", bg: "bg-orange-500", text: "text-orange-500" },
-  { name: "Red", value: "red", bg: "bg-red-500", text: "text-red-500" },
+  { name: "Orange", value: "orange", bg: "bg-[#FF6600]", text: "text-[#FF6600]" },
+  { name: "Light Orange", value: "orange-light", bg: "bg-[#FF9933]", text: "text-[#FF9933]" },
+  { name: "Yellow", value: "yellow", bg: "bg-[#FFCC00]", text: "text-[#FFCC00]" },
+  { name: "Pink", value: "pink", bg: "bg-[#FF66B2]", text: "text-[#FF66B2]" },
+  { name: "Green", value: "green", bg: "bg-[#33CC33]", text: "text-[#33CC33]" },
+  { name: "Blue", value: "blue", bg: "bg-[#3399FF]", text: "text-[#3399FF]" },
+  { name: "Red", value: "red", bg: "bg-[#FF3333]", text: "text-[#FF3333]" },
 ];
 
 interface HabitFormProps {

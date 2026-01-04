@@ -4,7 +4,24 @@
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
-        ".validate": "newData.hasChildren(['profile'])"
+        "profile": {
+          ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])"
+        },
+        "habits": {
+          "$habitId": {
+            ".validate": "newData.hasChildren(['name', 'icon', 'color', 'frequency', 'createdAt'])"
+          }
+        },
+        "checkins": {
+          "$date": {
+            ".validate": "true"
+          }
+        },
+        "stats": {
+          "$habitId": {
+            ".validate": "true"
+          }
+        }
       }
     }
   }

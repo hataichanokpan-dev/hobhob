@@ -13,15 +13,16 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, checked, streak = 0, onToggle }: HabitCardProps) {
   const colorClasses: Record<string, { bg: string; text: string; glow: string }> = {
-    purple: { bg: "bg-purple-500/20", text: "text-purple-500", glow: "glow-purple" },
-    blue: { bg: "bg-blue-500/20", text: "text-blue-500", glow: "glow-blue" },
-    pink: { bg: "bg-pink-500/20", text: "text-pink-500", glow: "glow-pink" },
-    green: { bg: "bg-green-500/20", text: "text-green-500", glow: "" },
-    orange: { bg: "bg-orange-500/20", text: "text-orange-500", glow: "" },
-    red: { bg: "bg-red-500/20", text: "text-red-500", glow: "" },
+    orange: { bg: "bg-[#FF6600]/20", text: "text-[#FF6600]", glow: "glow-orange" },
+    "orange-light": { bg: "bg-[#FF9933]/20", text: "text-[#FF9933]", glow: "glow-orange" },
+    yellow: { bg: "bg-[#FFCC00]/20", text: "text-[#FFCC00]", glow: "glow-yellow" },
+    pink: { bg: "bg-[#FF66B2]/20", text: "text-[#FF66B2]", glow: "glow-pink" },
+    green: { bg: "bg-[#33CC33]/20", text: "text-[#33CC33]", glow: "" },
+    blue: { bg: "bg-[#3399FF]/20", text: "text-[#3399FF]", glow: "" },
+    red: { bg: "bg-[#FF3333]/20", text: "text-[#FF3333]", glow: "" },
   };
 
-  const colors = colorClasses[habit.color] || colorClasses.purple;
+  const colors = colorClasses[habit.color] || colorClasses.orange;
 
   return (
     <div className={`habit-card ${checked ? colors.glow : ""}`}>
