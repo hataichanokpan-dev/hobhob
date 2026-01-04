@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signInWithGoogle, signInWithDevUser, isDevBypassEnabled } from "@/lib/auth/session";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,33 @@ export default function SignInPage() {
 
   // Check if dev bypass is enabled
   const showDevButton = isDevBypassEnabled();
+
+  /**
+   * Get user-friendly error message from Firebase auth error
+   */
+  function getErrorMessage(err: unknown): string {
+    if (err && typeof err === "object" && "code" in err) {
+      const code = (err as { code: string }).code;
+
+      switch (code) {
+        case "auth/unauthorized-domain":
+          return "This domain is not authorized. Please add it to Firebase Console → Authentication → Sign-in method → Google → Authorized domains";
+        case "auth/popup-blocked":
+          return "Popup was blocked. Please allow popups for this site and try again.";
+        case "auth/popup-closed-by-user":
+          return "Sign-in was cancelled. Please try again.";
+        case "auth/network-request-failed":
+          return "Network error. Please check your connection and try again.";
+        case "auth/invalid-api-key":
+          return "Invalid API key. Please check your Firebase configuration.";
+        case "auth/api-key-not-authorized":
+          return "API key not authorized. Please check Firebase Console.";
+        default:
+          return `Sign-in failed: ${code}`;
+      }
+    }
+    return "Failed to sign in. Please try again.";
+  }
 
   const handleSignIn = async () => {
     setIsLoading(true);
@@ -22,7 +50,7 @@ export default function SignInPage() {
       router.push("/today");
     } catch (err) {
       console.error("Sign in error:", err);
-      setError("Failed to sign in. Please try again.");
+      setError(getErrorMessage(err));
       setIsLoading(false);
     }
   };
@@ -118,8 +146,15 @@ export default function SignInPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
-              {error}
+            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm relative">
+              <button
+                onClick={() => setError(null)}
+                className="absolute top-2 right-2 text-red-400 hover:text-red-300"
+                aria-label="Dismiss error"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <p className="pr-6">{error}</p>
             </div>
           )}
 
