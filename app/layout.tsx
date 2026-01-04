@@ -6,6 +6,14 @@ export const metadata: Metadata = {
   title: "HobHob - Habit Tracker",
   description: "Build better habits, one day at a time.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/icon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icons/icon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

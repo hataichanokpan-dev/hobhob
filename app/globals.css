@@ -601,6 +601,43 @@ a:hover {
   }
 }
 
+@keyframes bounce-check {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .animate-slide-up {
   animation: slide-up 300ms ease-out;
 }
@@ -632,6 +669,18 @@ a:hover {
 .animate-shimmer {
   animation: shimmer 2s linear infinite;
   background-size: 200% 100%;
+}
+
+.animate-bounce-check {
+  animation: bounce-check 300ms ease-out;
+}
+
+.animate-shake {
+  animation: shake 300ms ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 /* Animation delays */
