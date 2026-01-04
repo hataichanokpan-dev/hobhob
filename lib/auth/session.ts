@@ -11,6 +11,51 @@ import { getUserRef, saveUserProfile, getProfileRef } from "@/lib/db";
 import type { UserProfile } from "@/types";
 
 /**
+ * Check if running in development mode with auth bypass
+ */
+export function isDevBypassEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV === "development";
+}
+
+/**
+ * Sign in with mock dev user (bypasses Firebase Auth)
+ * ONLY works in development mode with NEXT_PUBLIC_DEV_AUTH_BYPASS=true
+ */
+export async function signInWithDevUser(): Promise<FirebaseUser> {
+  if (!isDevBypassEnabled()) {
+    throw new Error("Dev bypass is only available in development mode with NEXT_PUBLIC_DEV_AUTH_BYPASS=true");
+  }
+
+  // Create mock Firebase user object (minimal properties we use)
+  const mockUid = "dev-user-123";
+  const mockUser = {
+    uid: mockUid,
+    email: "dev@example.com",
+    displayName: "Dev User",
+    photoURL: null,
+    phoneNumber: null,
+    emailVerified: true,
+    isAnonymous: false,
+    providerId: "dev",
+    providerData: [],
+    toJSON: () => ({}),
+    refreshToken: "",
+    tenantId: null,
+    getIdToken: async () => "dev-token",
+    getIdTokenResult: async () => ({ token: "dev-token", authTime: "", issuedAtTime: "", expirationTime: "", signInProvider: "dev", claims: {}, signInSecondFactor: null } as any),
+    metadata: {},
+    multiFactor: {} as any,
+    delete: async () => undefined,
+    reload: async () => undefined,
+  } as FirebaseUser;
+
+  // Create/update user profile in database
+  await ensureUserProfile(mockUser);
+
+  return mockUser;
+}
+
+/**
  * Sign in with Google
  */
 export async function signInWithGoogle(): Promise<FirebaseUser> {

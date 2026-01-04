@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithGoogle } from "@/lib/auth/session";
+import { signInWithGoogle, signInWithDevUser, isDevBypassEnabled } from "@/lib/auth/session";
 import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Check if dev bypass is enabled
+  const showDevButton = isDevBypassEnabled();
 
   const handleSignIn = async () => {
     setIsLoading(true);
@@ -20,6 +23,21 @@ export default function SignInPage() {
     } catch (err) {
       console.error("Sign in error:", err);
       setError("Failed to sign in. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleDevSignIn = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await signInWithDevUser();
+      // Navigate to today page
+      router.push("/today");
+    } catch (err) {
+      console.error("Dev sign in error:", err);
+      setError("Dev bypass failed. Please try again.");
       setIsLoading(false);
     }
   };
@@ -79,6 +97,24 @@ export default function SignInPage() {
               </>
             )}
           </button>
+
+          {/* Dev Mode Bypass Button */}
+          {showDevButton && (
+            <button
+              onClick={handleDevSignIn}
+              disabled={isLoading}
+              className="w-full btn-secondary flex items-center justify-center gap-2 text-sm"
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>🔧</span>
+                  Dev Mode Bypass
+                </>
+              )}
+            </button>
+          )}
 
           {/* Error Message */}
           {error && (
