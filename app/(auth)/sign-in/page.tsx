@@ -33,8 +33,8 @@ export default function SignInPage() {
 
     try {
       await signInWithDevUser();
-      // Navigate to today page
-      router.push("/today");
+      // Reload page so AuthProvider can detect the dev user from localStorage
+      window.location.href = "/today";
     } catch (err) {
       console.error("Dev sign in error:", err);
       setError("Dev bypass failed. Please try again.");
