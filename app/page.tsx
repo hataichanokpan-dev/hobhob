@@ -2,10 +2,8 @@ import { redirect } from "next/navigation";
 
 /**
  * Root page - redirects based on auth state
- * This is a temporary placeholder until we implement auth
+ * For now, redirect to sign-in (auth state check is client-side)
  */
 export default function HomePage() {
-  // TODO: Check auth state and redirect accordingly
-  // For now, redirect to a coming soon page
-  redirect("/coming-soon");
+  redirect("/sign-in");
 }

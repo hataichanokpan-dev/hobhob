@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 export const metadata: Metadata = {
   title: "HobHob - Habit Tracker",
-  description: "Build better habits, one day at a time. A mobile-first habit tracker with stunning design.",
+  description: "Build better habits, one day at a time.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -32,13 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen overflow-x-hidden ios-fix">
-        {/* Ambient glow background */}
-        <div className="ambient-glow-subtle" />
-
-        {/* Main content */}
-        <div className="relative min-h-screen">
-          {children}
-        </div>
+        <AuthProvider>
+          <div className="ambient-glow-subtle" />
+          <div className="relative min-h-screen">{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );
