@@ -4,49 +4,7 @@
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
-        "profile": {
-          ".validate": "newData.hasChildren(['email', 'displayName', 'timezone', 'createdAt'])",
-          "email": { ".validate": "newData.isString()" },
-          "displayName": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 50" },
-          "photoURL": { ".validate": "newData.isString() || newData.isNull()" },
-          "timezone": { ".validate": "newData.isString()" },
-          "createdAt": { ".validate": "newData.isNumber()" },
-          "lastLoginAt": { ".validate": "newData.isNumber() || newData.isNull()" },
-          "$other": { ".validate": false }
-        },
-        "habits": {
-          "$habitId": {
-            ".validate": "newData.hasChildren(['name', 'icon', 'color', 'frequency', 'isActive', 'createdAt', 'updatedAt'])",
-            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 50" },
-            "icon": { ".validate": "newData.isString() && newData.val().length > 0" },
-            "color": { ".validate": "newData.isString()" },
-            "frequency": { ".validate": "newData.val() == 'daily' || newData.val() == 'weekly'" },
-            "targetDays": { ".validate": "newData.isArray() || newData.isNull()" },
-            "isActive": { ".validate": "newData.isBoolean()" },
-            "createdAt": { ".validate": "newData.isNumber()" },
-            "updatedAt": { ".validate": "newData.isNumber()" },
-            "$other": { ".validate": false }
-          }
-        },
-        "checkins": {
-          "$date": {
-            ".validate": "newData.isString() && /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(newData.val())",
-            "$habitId": {
-              ".validate": "newData.isBoolean() || newData.isNull()"
-            }
-          }
-        },
-        "stats": {
-          "$habitId": {
-            ".validate": "newData.hasChildren(['currentStreak', 'bestStreak', 'totalCheckins', 'lastUpdated'])",
-            "currentStreak": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "bestStreak": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "totalCheckins": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-            "lastUpdated": { ".validate": "newData.isNumber()" },
-            "$other": { ".validate": false }
-          }
-        },
-        "$other": { ".validate": false }
+        ".validate": "newData.hasChildren(['profile'])"
       }
     }
   }

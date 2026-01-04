@@ -1,0 +1,9 @@
+{
+  "database": {
+    "rules": "database.rules.json",
+    "source": "database.rules.json"
+  },
+  "projects": {
+    "default": "hobhob-8cacb"
+  }
+}
