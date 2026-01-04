@@ -46,8 +46,8 @@ export default function SignInPage() {
 
     try {
       await signInWithGoogle();
-      // AuthProvider will handle redirect
-      router.push("/today");
+      // Force page reload so AuthProvider can detect the authenticated user from Firebase
+      window.location.href = "/today";
     } catch (err) {
       console.error("Sign in error:", err);
       setError(getErrorMessage(err));
