@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onAuthStateChange } from "@/lib/auth/session";
+import { onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
 import { useUserStore } from "@/store/use-user-store";
 import { get } from "firebase/database";
 import { getProfileRef } from "@/lib/db";
@@ -12,26 +12,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange(async (user) => {
-      setUser(user);
+    let unsubscribe: (() => void) | null = null;
 
-      if (user) {
-        // Fetch user profile
-        try {
-          const snapshot = await get(getProfileRef(user.uid));
+    // Check for dev user first (before Firebase auth)
+    const devUser = getStoredDevUser();
+    if (devUser) {
+      setUser(devUser);
+      // Fetch user profile for dev user
+      get(getProfileRef(devUser.uid))
+        .then((snapshot) => {
           if (snapshot.exists()) {
             setUserProfile(snapshot.val() as UserProfile);
           }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
+        })
+        .catch((error) => {
+          console.error("Error fetching dev user profile:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+          setInitialized(true);
+        });
+    } else {
+      // Use Firebase auth listener
+      unsubscribe = onAuthStateChange(async (user) => {
+        setUser(user);
+
+        if (user) {
+          // Fetch user profile
+          try {
+            const snapshot = await get(getProfileRef(user.uid));
+            if (snapshot.exists()) {
+              setUserProfile(snapshot.val() as UserProfile);
+            }
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+          }
         }
-      }
 
-      setLoading(false);
-      setInitialized(true);
-    });
+        setLoading(false);
+        setInitialized(true);
+      });
+    }
 
-    return unsubscribe;
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [setUser, setUserProfile, setLoading]);
 
   if (!initialized) {

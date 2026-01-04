@@ -52,7 +52,61 @@ export async function signInWithDevUser(): Promise<FirebaseUser> {
   // Create/update user profile in database
   await ensureUserProfile(mockUser);
 
+  // Store dev user in localStorage for persistence
+  if (typeof window !== "undefined") {
+    localStorage.setItem("dev_user", JSON.stringify({
+      uid: mockUser.uid,
+      email: mockUser.email,
+      displayName: mockUser.displayName,
+      photoURL: mockUser.photoURL,
+    }));
+  }
+
   return mockUser;
+}
+
+/**
+ * Get stored dev user from localStorage
+ */
+export function getStoredDevUser(): FirebaseUser | null {
+  if (!isDevBypassEnabled()) return null;
+
+  if (typeof window === "undefined") return null;
+
+  const stored = localStorage.getItem("dev_user");
+  if (!stored) return null;
+
+  try {
+    const data = JSON.parse(stored);
+    return {
+      ...data,
+      emailVerified: true,
+      isAnonymous: false,
+      providerId: "dev",
+      providerData: [],
+      toJSON: () => ({}),
+      refreshToken: "",
+      tenantId: null,
+      phoneNumber: null,
+      getIdToken: async () => "dev-token",
+      getIdTokenResult: async () => ({ token: "dev-token", authTime: "", issuedAtTime: "", expirationTime: "", signInProvider: "dev", claims: {}, signInSecondFactor: null } as any),
+      metadata: {},
+      multiFactor: {} as any,
+      delete: async () => undefined,
+      reload: async () => undefined,
+    } as FirebaseUser;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Clear stored dev user
+ */
+export function clearStoredDevUser(): void {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("dev_user");
+  }
 }
 
 /**
@@ -98,6 +152,7 @@ async function ensureUserProfile(user: FirebaseUser): Promise<void> {
  * Sign out current user
  */
 export async function signOut(): Promise<void> {
+  clearStoredDevUser();
   await firebaseSignOut(auth);
 }
 
