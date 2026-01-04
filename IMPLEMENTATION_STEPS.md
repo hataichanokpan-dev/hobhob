@@ -9,14 +9,14 @@ This document breaks down each implementation step into actionable tasks with sp
 | Step | Status | Description |
 |------|--------|-------------|
 | Step 1 | ✅ Done | Bootstrap Project |
-| Step 2 | ⏳ TODO | Firebase Setup |
-| Step 3 | ⏳ TODO | Google Authentication |
-| Step 4 | ⏳ TODO | Habit CRUD |
-| Step 5 | ⏳ TODO | Today Page + Check-ins |
-| Step 6 | ⏳ TODO | Stats & Streaks |
-| Step 7 | ⏳ TODO | Settings Page |
-| Step 8 | ⏳ TODO | Polish & PWA |
-| Step 9 | ⏳ TODO | Testing & Deployment |
+| Step 2 | ✅ Done | Firebase Setup |
+| Step 3 | ✅ Done | Google Authentication |
+| Step 4 | ✅ Done | Habit CRUD |
+| Step 5 | ✅ Done | Today Page + Check-ins |
+| Step 6 | ✅ Done | Stats & Streaks |
+| Step 7 | ✅ Done | Settings Page |
+| Step 8 | ✅ Done | Polish & PWA |
+| Step 9 | ⏳ In Progress | Testing & Deployment |
 
 ---
 
