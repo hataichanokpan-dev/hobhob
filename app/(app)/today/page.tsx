@@ -118,18 +118,10 @@ export default function TodayPage() {
   if (showHabitForm) {
     return (
       <div className="p-4">
-        <div className="surface p-6 max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">{t("today.newHabit")}</h2>
-            <button onClick={handleHabitFormCancel} className="icon-btn">
-              ✕
-            </button>
-          </div>
-          <HabitForm
-            onSuccess={handleHabitFormSuccess}
-            onCancel={handleHabitFormCancel}
-          />
-        </div>
+        <HabitForm
+          onSuccess={handleHabitFormSuccess}
+          onCancel={handleHabitFormCancel}
+        />
       </div>
     );
   }
@@ -157,7 +149,10 @@ export default function TodayPage() {
                   {completionRate}%
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {tp("today.completedCount", { completed: completedCount, total: todaysHabits.length })}
+                  {tp("today.completedCount", {
+                    completed: completedCount,
+                    total: todaysHabits.length,
+                  })}
                 </p>
               </div>
             )}
@@ -220,7 +215,9 @@ export default function TodayPage() {
             <div className="empty-state-icon mx-auto">
               <span className="text-4xl">🎯</span>
             </div>
-            <h3 className="text-lg font-semibold mb-2">{t("today.emptyState.title")}</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {t("today.emptyState.title")}
+            </h3>
             <p className="empty-state-text mb-6 max-w-sm mx-auto">
               {t("today.emptyState.description")}
             </p>

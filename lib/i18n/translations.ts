@@ -64,6 +64,10 @@ export const translations = {
       signInWithGoogle: "Sign in with Google",
       signInError: "Sign in error",
       loading: "Signing in...",
+      footer: {
+        prefix: "Created to see you better",
+        suffix: "every day.",
+      },
     },
 
     // Today Page
@@ -298,6 +302,10 @@ export const translations = {
       signInWithGoogle: "เข้าสู่ระบบด้วย Google",
       signInError: "เข้าสู่ระบบไม่สำเร็จ",
       loading: "กำลังเข้าสู่ระบบ...",
+      footer: {
+        prefix: "เราสร้างเพราะอยากเห็นคุณดีขึ้น",
+        suffix: "ในทุกๆวัน",
+      },
     },
 
     // Today Page

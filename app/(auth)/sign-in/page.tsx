@@ -5,9 +5,11 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle, signInWithDevUser, isDevBypassEnabled, onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
 import { X } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -357,7 +359,7 @@ export default function SignInPage() {
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            Made with
+            {t("auth.footer.prefix")}
             <motion.span
               animate={{
                 scale: [1, 1.3, 1],
@@ -370,7 +372,7 @@ export default function SignInPage() {
             >
               💕
             </motion.span>
-            for habit builders
+            {t("auth.footer.suffix")}
           </motion.p>
           
         </motion.div>
