@@ -25,7 +25,7 @@ function getUserStatsRef(uid: string) {
 
 /**
  * Get public leaderboard data from actual user data
- * Fetches all users and calculates their streaks from stats
+ * Fetches all users and calculates their stats from check-ins
  */
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
   const usersRef = ref(database, "users");
@@ -48,19 +48,76 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
     const profile = userData.profile;
     if (!profile) continue;
 
-    // Calculate streaks from stats
-    const stats = userData.stats || {};
-    let totalBestStreak = 0;
-    let totalCurrentStreak = 0;
+    // Calculate stats from check-ins (not stats field which may not exist)
+    const checkins = userData.checkins || {};
+    const habits = userData.habits || {};
     let totalCheckins = 0;
+    let uniqueCheckinDays = 0;
 
-    // Sum up all habit stats
-    const habitIds = Object.keys(stats);
-    for (let j = 0; j < habitIds.length; j++) {
-      const habitStats: HabitStats = stats[habitIds[j]];
-      totalBestStreak += habitStats.bestStreak || 0;
-      totalCurrentStreak += habitStats.currentStreak || 0;
-      totalCheckins += habitStats.totalCheckins || 0;
+    // Count all check-ins and unique days
+    const dates = Object.keys(checkins);
+    for (let j = 0; j < dates.length; j++) {
+      const date = dates[j];
+      const dayCheckins = checkins[date];
+
+      // Count each habit check-in for this day
+      const habitIds = Object.keys(dayCheckins);
+      for (let k = 0; k < habitIds.length; k++) {
+        const value = dayCheckins[habitIds[k]];
+        let checked = false;
+
+        // Handle both boolean and object formats
+        if (typeof value === "object" && value !== null) {
+          checked = value.checked === true;
+        } else {
+          checked = value === true;
+        }
+
+        if (checked) {
+          totalCheckins++;
+        }
+      }
+
+      // Count this day if there are any check-ins
+      if (habitIds.length > 0) {
+        uniqueCheckinDays++;
+      }
+    }
+
+    // Calculate best streak (consecutive days with check-ins)
+    let bestStreak = 0;
+    let currentStreak = 0;
+
+    if (dates.length > 0) {
+      // Sort dates
+      const sortedDates = dates.sort();
+
+      // Calculate streaks
+      for (let j = 0; j < sortedDates.length; j++) {
+        const date = sortedDates[j];
+        const dayCheckins = checkins[date];
+
+        // Check if any habit was checked on this day
+        let hasChecked = false;
+        const habitIds = Object.keys(dayCheckins);
+        for (let k = 0; k < habitIds.length; k++) {
+          const value = dayCheckins[habitIds[k]];
+          if (typeof value === "object" && value !== null) {
+            if (value.checked === true) hasChecked = true;
+          } else if (value === true) {
+            hasChecked = true;
+          }
+        }
+
+        if (hasChecked) {
+          currentStreak++;
+          if (currentStreak > bestStreak) {
+            bestStreak = currentStreak;
+          }
+        } else {
+          currentStreak = 0;
+        }
+      }
     }
 
     // Only include users who have some activity
@@ -75,11 +132,14 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
           createdAt: profile.createdAt || 0,
           lastLoginAt: profile.lastLoginAt || 0,
         },
-        totalStreak: totalCheckins, // Use total check-ins as total streak
-        bestStreak: totalBestStreak, // Best streak across all habits
+        totalStreak: totalCheckins, // Total check-ins
+        bestStreak: bestStreak, // Best streak (consecutive days)
       });
     }
   }
+
+  // Sort by best streak descending
+  leaderboardUsers.sort((a, b) => b.bestStreak - a.bestStreak);
 
   return leaderboardUsers;
 }

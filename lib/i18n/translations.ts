@@ -338,7 +338,7 @@ export const translations = {
       habits: "จัดการนิสัยของคุณ",
       stats: "ดูความคืดหน้า",
       history: "ดูประวัติของคุณ",
-      leaderboard: "ดูผู้สร้างนิสัยระดับตำ",
+      leaderboard: "ดูลำดับผู้สร้างนิสัย",
       settings: "การตั้งค่าแอป",
     },
 
