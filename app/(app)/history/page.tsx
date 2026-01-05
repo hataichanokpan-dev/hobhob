@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Download, Calendar, Filter, TrendingUp, Flame, CheckCircle2 } from "lucide-react";
 import { listenToHabits, listenToAllCheckins } from "@/lib/db";
 import { habitsToArray } from "@/lib/db/habits";
@@ -228,10 +229,36 @@ export default function HistoryPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <div className="text-2xl mb-2">📊</div>
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-4"
+        >
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-4xl"
+          >
+            📊
+          </motion.div>
+          <motion.p
+            className="text-muted-foreground"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            {t("common.loading")}
+          </motion.p>
+          <div className="flex items-center justify-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full bg-[var(--color-brand)]"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
     );
   }

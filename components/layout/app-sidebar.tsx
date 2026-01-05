@@ -141,10 +141,10 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   <img
                     src={userProfile.photoURL}
                     alt={userProfile.displayName || "User"}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-[var(--color-border)]"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-[var(--color-border)]"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
                     {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
                   </div>
                 )}
