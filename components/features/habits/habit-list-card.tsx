@@ -32,7 +32,21 @@ export function HabitListCard({
     red: { bg: "bg-[#FF3333]/20", text: "text-[#FF3333]", border: "border-[#FF3333]/20" },
   };
 
-  const colors = colorClasses[habit.color] || colorClasses.orange;
+  // Check if color is a custom hex code
+  const isCustomColor = habit.color.startsWith("#");
+  const customColor = habit.color;
+  const colors = isCustomColor ? {
+    bg: "bg-transparent",
+    text: "text-transparent",
+    border: "border-transparent",
+  } : (colorClasses[habit.color] || colorClasses.orange);
+
+  // Custom color styles
+  const customColorStyles = isCustomColor ? {
+    backgroundColor: `${customColor}20`, // 20% opacity
+    color: customColor,
+    borderColor: `${customColor}20`,
+  } : {};
 
   const handlePauseToggle = () => {
     onToggleActive(habit.id, !habit.isActive);
@@ -68,18 +82,33 @@ export function HabitListCard({
       `}
     >
       {/* Left accent bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.bg.replace('/20', '')}`} />
+      {isCustomColor ? (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1"
+          style={{ backgroundColor: customColor }}
+        />
+      ) : (
+        <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.bg.replace('/20', '')}`} />
+      )}
 
       <div className="flex items-start gap-4 pl-3">
         {/* Icon */}
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${colors.bg} flex-shrink-0`}>
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${colors.bg}`}
+          style={customColorStyles}
+        >
           {habit.icon}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className={`font-semibold ${colors.text}`}>{habit.name}</h3>
+            <h3
+              className={`font-semibold ${colors.text}`}
+              style={isCustomColor ? { color: customColor } : undefined}
+            >
+              {habit.name}
+            </h3>
             {!habit.isActive && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[var(--color-muted)] text-[var(--color-muted-foreground)]">
                 Paused

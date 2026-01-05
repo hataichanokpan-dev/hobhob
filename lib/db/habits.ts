@@ -23,6 +23,7 @@ export async function createNewHabit(
   const habit: Habit = {
     id: generateId(),
     name: input.name,
+    description: input.description,
     icon: input.icon,
     color: input.color,
     frequency: input.frequency,

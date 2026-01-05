@@ -30,6 +30,7 @@ export const translations = {
       today: "Today",
       habits: "Habits",
       stats: "Statistics",
+      history: "History",
       settings: "Settings",
       menu: "Menu",
       navigateYourApp: "Navigate your app",
@@ -40,6 +41,7 @@ export const translations = {
       today: "Check in your habits",
       habits: "Manage your habits",
       stats: "View your progress",
+      history: "View your history",
       settings: "App preferences",
     },
 
@@ -159,6 +161,44 @@ export const translations = {
       },
     },
 
+    // History Page
+    history: {
+      title: "History",
+      export: "Export",
+      filters: {
+        dateRange: "Date Range",
+        preset: {
+          week: "Week",
+          month: "Month",
+          "3months": "3M",
+          year: "Year",
+          all: "All",
+        },
+        startDate: "From",
+        endDate: "To",
+        habit: "Filter by Habit",
+        allHabits: "All Habits",
+      },
+      stats: {
+        completion: "Completion Rate",
+        currentStreak: "Current Streak",
+        bestStreak: "Best Streak",
+        total: "Total Check-ins",
+      },
+      heatmap: {
+        title: "Activity Heatmap",
+        empty: "No activity data for the selected period",
+        legend: {
+          less: "Less",
+          more: "More",
+        },
+      },
+      checkins: {
+        title: "Recent Check-ins",
+        empty: "No check-ins found for the selected period",
+      },
+    },
+
     // Settings Page
     settings: {
       title: "Settings",
@@ -268,6 +308,7 @@ export const translations = {
       today: "วันนี้",
       habits: "นิสัย",
       stats: "สถิติ",
+      history: "ประวัติ",
       settings: "ตั้งค่า",
       menu: "เมนู",
       navigateYourApp: "นำทางในแอป",
@@ -278,6 +319,7 @@ export const translations = {
       today: "เช็คอินนิสัยของคุณ",
       habits: "จัดการนิสัยของคุณ",
       stats: "ดูความคืดหน้า",
+      history: "ดูประวัติของคุณ",
       settings: "การตั้งค่าแอป",
     },
 
@@ -394,6 +436,44 @@ export const translations = {
       emptyState: {
         title: "ยังไม่มีสถิติ",
         description: "ทำการเช็คอินเพื่อดูความคืดหน้าของคุณ เริ่มติดตามนิสัยของคุณตั้งแต่วันนี้!",
+      },
+    },
+
+    // History Page
+    history: {
+      title: "ประวัติ",
+      export: "ส่งออก",
+      filters: {
+        dateRange: "ช่วงวันที่",
+        preset: {
+          week: "สัปดาห์",
+          month: "เดือน",
+          "3months": "3 เดือน",
+          year: "ปี",
+          all: "ทั้งหมด",
+        },
+        startDate: "จาก",
+        endDate: "ถึง",
+        habit: "กรองตามนิสัย",
+        allHabits: "นิสัยทั้งหมด",
+      },
+      stats: {
+        completion: "อัตราการทำสำเร็จ",
+        currentStreak: "สตรีกปัจจุบัน",
+        bestStreak: "สตรีกที่ดีที่สุด",
+        total: "เช็คอินทั้งหมด",
+      },
+      heatmap: {
+        title: "แผนที่ความถี่",
+        empty: "ไม่มีข้อมูลกิจกรรมสำหรับช่วงเวลาที่เลือก",
+        legend: {
+          less: "น้อย",
+          more: "มาก",
+        },
+      },
+      checkins: {
+        title: "เช็คอินล่าสุด",
+        empty: "ไม่พบเช็คอินสำหรับช่วงเวลาที่เลือก",
       },
     },
 

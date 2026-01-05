@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X, Palette } from "lucide-react";
 import { createNewHabit, updateExistingHabit } from "@/lib/db/habits";
 import { useUserStore } from "@/store/use-user-store";
 import type { Habit, CreateHabitInput, UpdateHabitInput } from "@/types";
@@ -12,13 +12,13 @@ const HABIT_ICONS = [
 ];
 
 const HABIT_COLORS = [
-  { name: "Orange", value: "orange", bg: "bg-[#FF6600]", text: "text-[#FF6600]" },
-  { name: "Light Orange", value: "orange-light", bg: "bg-[#FF9933]", text: "text-[#FF9933]" },
-  { name: "Yellow", value: "yellow", bg: "bg-[#FFCC00]", text: "text-[#FFCC00]" },
-  { name: "Pink", value: "pink", bg: "bg-[#FF66B2]", text: "text-[#FF66B2]" },
-  { name: "Green", value: "green", bg: "bg-[#33CC33]", text: "text-[#33CC33]" },
-  { name: "Blue", value: "blue", bg: "bg-[#3399FF]", text: "text-[#3399FF]" },
-  { name: "Red", value: "red", bg: "bg-[#FF3333]", text: "text-[#FF3333]" },
+  { name: "Orange", value: "orange", bg: "bg-[#FF6600]", text: "text-[#FF6600]", hex: "#FF6600" },
+  { name: "Light Orange", value: "orange-light", bg: "bg-[#FF9933]", text: "text-[#FF9933]", hex: "#FF9933" },
+  { name: "Yellow", value: "yellow", bg: "bg-[#FFCC00]", text: "text-[#FFCC00]", hex: "#FFCC00" },
+  { name: "Pink", value: "pink", bg: "bg-[#FF66B2]", text: "text-[#FF66B2]", hex: "#FF66B2" },
+  { name: "Green", value: "green", bg: "bg-[#33CC33]", text: "text-[#33CC33]", hex: "#33CC33" },
+  { name: "Blue", value: "blue", bg: "bg-[#3399FF]", text: "text-[#3399FF]", hex: "#3399FF" },
+  { name: "Red", value: "red", bg: "bg-[#FF3333]", text: "text-[#FF3333]", hex: "#FF3333" },
 ];
 
 const WEEK_DAYS = [
@@ -43,7 +43,16 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
   const [name, setName] = useState(habit?.name || "");
   const [description, setDescription] = useState(habit?.description || "");
   const [icon, setIcon] = useState(habit?.icon || HABIT_ICONS[0]);
-  const [color, setColor] = useState(habit?.color || HABIT_COLORS[0].value);
+  const [customIcon, setCustomIcon] = useState("");
+  const [showCustomIcon, setShowCustomIcon] = useState(false);
+
+  // Check if habit has a custom color (hex code)
+  const isCustomHabitColor = habit?.color?.startsWith("#");
+  const habitColor = habit?.color || HABIT_COLORS[0].value;
+  const [color, setColor] = useState(habitColor);
+  const [customColor, setCustomColor] = useState(isCustomHabitColor ? habitColor : "#FF6600");
+  const [showCustomColor, setShowCustomColor] = useState(false);
+
   const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">(
     habit?.frequency || "daily"
   );
@@ -61,11 +70,16 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
     try {
       const input: CreateHabitInput | UpdateHabitInput = {
         name: name.trim(),
-        description: description.trim() || undefined,
         icon,
         color,
         frequency,
       };
+
+      // Only include description if it's not empty (Firebase doesn't accept undefined)
+      const trimmedDescription = description.trim();
+      if (trimmedDescription) {
+        input.description = trimmedDescription;
+      }
 
       // Add targetDays for weekly/monthly
       if (frequency !== "daily" && selectedDays.length > 0) {
@@ -73,14 +87,20 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
       }
 
       if (isEditing) {
+        console.log("Updating habit:", { id: habit.id, input });
         await updateExistingHabit(user.uid, { ...input, id: habit.id });
+        console.log("Habit updated successfully");
       } else {
+        console.log("Creating new habit:", input);
         await createNewHabit(user.uid, input);
+        console.log("Habit created successfully");
       }
 
+      // Only call onSuccess if save succeeded
       onSuccess?.();
     } catch (error) {
       console.error("Error saving habit:", error);
+      alert(`Failed to save habit: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setIsLoading(false);
     }
@@ -142,8 +162,19 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
 
       {/* Icon Selection */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Icon</label>
-        <div className="grid grid-cols-8 gap-2 pt-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Icon</label>
+          <button
+            type="button"
+            onClick={() => setShowCustomIcon(!showCustomIcon)}
+            className="text-xs text-[var(--color-brand)] hover:underline"
+          >
+            {showCustomIcon ? "Hide" : "Custom"}
+          </button>
+        </div>
+
+        {/* Preset Icons */}
+        <div className={`grid grid-cols-8 gap-2 pt-2 ${showCustomIcon ? "hidden" : ""}`}>
           {HABIT_ICONS.map((habitIcon) => (
             <button
               key={habitIcon}
@@ -159,12 +190,54 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
             </button>
           ))}
         </div>
+
+        {/* Custom Icon Input */}
+        {showCustomIcon && (
+          <div className="space-y-2 pt-2">
+            <input
+              type="text"
+              value={customIcon}
+              onChange={(e) => setCustomIcon(e.target.value)}
+              placeholder="Type or paste an emoji... ✨"
+              className="w-full input text-center text-2xl"
+              maxLength={2}
+              onBlur={() => {
+                if (customIcon) {
+                  setIcon(customIcon);
+                }
+              }}
+            />
+            {customIcon && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIcon(customIcon);
+                  setShowCustomIcon(false);
+                }}
+                className="w-full btn-primary text-sm"
+              >
+                Use "{customIcon}"
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Color Selection */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Color</label>
-        <div className="flex gap-2 pt-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Color</label>
+          <button
+            type="button"
+            onClick={() => setShowCustomColor(!showCustomColor)}
+            className="text-xs text-[var(--color-brand)] hover:underline"
+          >
+            {showCustomColor ? "Hide" : "Custom"}
+          </button>
+        </div>
+
+        {/* Preset Colors */}
+        <div className={`flex gap-2 pt-2 ${showCustomColor ? "hidden" : ""}`}>
           {HABIT_COLORS.map((habitColor) => (
             <button
               key={habitColor.value}
@@ -178,6 +251,44 @@ export function HabitForm({ habit, onSuccess, onCancel }: HabitFormProps) {
             />
           ))}
         </div>
+
+        {/* Custom Color Picker */}
+        {showCustomColor && (
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={customColor}
+                  onChange={(e) => setCustomColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg cursor-pointer border-0"
+                />
+                <Palette className="absolute -right-1 -top-1 w-4 h-4 text-muted-foreground pointer-events-none" />
+              </div>
+              <input
+                type="text"
+                value={customColor}
+                onChange={(e) => setCustomColor(e.target.value)}
+                placeholder="#FF6600"
+                className="flex-1 input font-mono text-sm uppercase"
+                maxLength={7}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setColor(customColor);
+                  setShowCustomColor(false);
+                }}
+                className="btn-primary text-sm px-4"
+              >
+                Use
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Pick any color or enter a hex code (e.g., #FF6600)
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Frequency Selection */}
