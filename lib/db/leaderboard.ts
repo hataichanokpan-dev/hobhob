@@ -1,6 +1,6 @@
 import { get, update, ref, onValue } from "firebase/database";
 import { database } from "@/lib/firebase/client";
-import type { LeaderboardUser, Follows } from "@/types";
+import type { LeaderboardUser, Follows, UserProfile, HabitStats } from "@/types";
 
 /**
  * Get reference to follows collection
@@ -10,32 +10,78 @@ function getFollowsRef(uid: string) {
 }
 
 /**
- * Get public leaderboard data
- * NOTE: This requires a public leaderboard index in Firebase
- * For security, only expose public data (displayName, photoURL, streaks)
+ * Get reference to user profile
+ */
+function getUserProfileRef(uid: string) {
+  return ref(database, `users/${uid}/profile`);
+}
+
+/**
+ * Get reference to user stats
+ */
+function getUserStatsRef(uid: string) {
+  return ref(database, `users/${uid}/stats`);
+}
+
+/**
+ * Get public leaderboard data from actual user data
+ * Fetches all users and calculates their streaks from stats
  */
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
-  const leaderboardRef = ref(database, "leaderboard");
-  const snapshot = await get(leaderboardRef);
+  const usersRef = ref(database, "users");
+  const snapshot = await get(usersRef);
 
   if (!snapshot.exists()) {
     return [];
   }
 
-  const data = snapshot.val();
-  return Object.entries(data).map(([uid, user]: [string, any]) => ({
-    uid,
-    profile: {
-      displayName: user.displayName,
-      photoURL: user.photoURL || null,
-      email: "", // Not exposed publicly
-      timezone: user.timezone || "UTC",
-      createdAt: user.createdAt || 0,
-      lastLoginAt: user.lastLoginAt || 0,
-    },
-    totalStreak: user.totalStreak || 0,
-    bestStreak: user.bestStreak || 0,
-  }));
+  const usersData = snapshot.val();
+  const leaderboardUsers: LeaderboardUser[] = [];
+
+  // Process each user
+  const uids = Object.keys(usersData);
+  for (let i = 0; i < uids.length; i++) {
+    const uid = uids[i];
+    const userData = (usersData as any)[uid];
+
+    // Get profile data
+    const profile = userData.profile;
+    if (!profile) continue;
+
+    // Calculate streaks from stats
+    const stats = userData.stats || {};
+    let totalBestStreak = 0;
+    let totalCurrentStreak = 0;
+    let totalCheckins = 0;
+
+    // Sum up all habit stats
+    const habitIds = Object.keys(stats);
+    for (let j = 0; j < habitIds.length; j++) {
+      const habitStats: HabitStats = stats[habitIds[j]];
+      totalBestStreak += habitStats.bestStreak || 0;
+      totalCurrentStreak += habitStats.currentStreak || 0;
+      totalCheckins += habitStats.totalCheckins || 0;
+    }
+
+    // Only include users who have some activity
+    if (totalCheckins > 0) {
+      leaderboardUsers.push({
+        uid,
+        profile: {
+          displayName: profile.displayName || "Anonymous",
+          photoURL: profile.photoURL || null,
+          email: "", // Not exposed publicly
+          timezone: profile.timezone || "UTC",
+          createdAt: profile.createdAt || 0,
+          lastLoginAt: profile.lastLoginAt || 0,
+        },
+        totalStreak: totalCheckins, // Use total check-ins as total streak
+        bestStreak: totalBestStreak, // Best streak across all habits
+      });
+    }
+  }
+
+  return leaderboardUsers;
 }
 
 /**
@@ -117,3 +163,4 @@ export function listenToFollows(
 export function isFollowing(follows: Follows | null, targetUid: string): boolean {
   return follows?.following[targetUid] !== undefined;
 }
+
