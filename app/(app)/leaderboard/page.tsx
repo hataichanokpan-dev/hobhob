@@ -25,9 +25,9 @@ export default function LeaderboardPage() {
     async function loadLeaderboard() {
       try {
         const data = await getLeaderboard();
-        // Sort by best streak and take top 100
+        // Sort by total streak and take top 100
         const sorted = data
-          .sort((a, b) => b.bestStreak - a.bestStreak)
+          .sort((a, b) => b.totalStreak - a.totalStreak)
           .slice(0, 100);
         setUsers(sorted);
       } catch (error) {

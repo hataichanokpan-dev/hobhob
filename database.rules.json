@@ -1,8 +1,9 @@
 {
   "rules": {
     "users": {
+      // Allow authenticated users to read public profile data for leaderboard
+      ".read": "auth != null",
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
         "profile": {
           ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])"
@@ -20,6 +21,15 @@
         "stats": {
           "$habitId": {
             ".validate": "true"
+          }
+        },
+        "follows": {
+          "following": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "followers": {
+            // Allow authenticated users to add themselves to followers list
+            ".write": "auth != null && newData.child(auth.uid).exists() === true || newData.child(auth.uid).exists() === false"
           }
         }
       }

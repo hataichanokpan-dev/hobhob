@@ -138,8 +138,8 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
     }
   }
 
-  // Sort by best streak descending
-  leaderboardUsers.sort((a, b) => b.bestStreak - a.bestStreak);
+  // Sort by total streak descending
+  leaderboardUsers.sort((a, b) => b.totalStreak - a.totalStreak);
 
   return leaderboardUsers;
 }
