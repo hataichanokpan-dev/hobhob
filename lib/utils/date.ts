@@ -3,24 +3,31 @@
  */
 
 /**
- * Get today's date string in user's timezone (YYYY-MM-DD format)
+ * Format a date to YYYY-MM-DD string in user's timezone
+ * This is the standard format used for storing and querying checkins
  */
-export function getTodayDateString(timezone: string = "UTC"): string {
-  const now = new Date();
+export function formatDateString(date: Date, timezone: string = "UTC"): string {
   const year = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     timeZone: timezone,
-  }).format(now);
+  }).format(date);
   const month = new Intl.DateTimeFormat("en-US", {
     month: "2-digit",
     timeZone: timezone,
-  }).format(now);
+  }).format(date);
   const day = new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
     timeZone: timezone,
-  }).format(now);
+  }).format(date);
 
   return `${year}-${month}-${day}`;
+}
+
+/**
+ * Get today's date string in user's timezone (YYYY-MM-DD format)
+ */
+export function getTodayDateString(timezone: string = "UTC"): string {
+  return formatDateString(new Date(), timezone);
 }
 
 /**
@@ -66,4 +73,30 @@ export function isToday(date: Date, timezone: string): boolean {
     timeZone: timezone,
   }).format(date);
   return dateStr === today;
+}
+
+/**
+ * Get the day of week (0-6, where 0=Monday, 6=Sunday) in user's timezone
+ */
+export function getDayOfWeek(timezone: string): number {
+  const now = new Date();
+  // Convert to user's timezone and get day of week
+  const str = now.toLocaleString("en-US", { timeZone: timezone });
+  const dateInTimezone = new Date(str);
+  // JavaScript getDay() returns 0=Sunday, 1=Monday, ..., 6=Saturday
+  // Convert to 0=Monday, 6=Sunday
+  const jsDay = dateInTimezone.getDay();
+  return jsDay === 0 ? 6 : jsDay - 1;
+}
+
+/**
+ * Get the day of month (1-31) in user's timezone
+ */
+export function getDayOfMonth(timezone: string): number {
+  const now = new Date();
+  const dayOfMonth = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    timeZone: timezone,
+  }).format(now);
+  return parseInt(dayOfMonth);
 }

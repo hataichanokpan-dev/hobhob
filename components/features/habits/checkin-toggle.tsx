@@ -2,12 +2,13 @@
 
 import { Check } from "lucide-react";
 import { useState } from "react";
+import { CheckinNoteModal } from "./checkin-note-modal";
 import type { Habit } from "@/types";
 
 interface CheckinToggleProps {
   habit: Habit;
   checked: boolean;
-  onToggle: (habitId: string) => void;
+  onToggle: (habitId: string, note?: string) => void;
   disabled?: boolean;
 }
 
@@ -29,36 +30,59 @@ export function CheckinToggle({
   disabled = false,
 }: CheckinToggleProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleToggle = () => {
     if (disabled) return;
+
+    // Show modal for user to choose quick complete or add note
+    setShowModal(true);
+  };
+
+  const handleQuickComplete = () => {
     setIsAnimating(true);
     onToggle(habit.id);
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const handleCompleteWithNote = (note: string) => {
+    setIsAnimating(true);
+    onToggle(habit.id, note);
     setTimeout(() => setIsAnimating(false), 300);
   };
 
   const color = COLOR_MAP[habit.color] || COLOR_MAP.orange;
 
   return (
-    <button
-      onClick={handleToggle}
-      disabled={disabled}
-      className={`checkin-toggle ${checked ? "checked" : "unchecked"} ${
-        isAnimating ? "scale-90" : "scale-100"
-      }`}
-      style={{
-        borderColor: checked ? color : undefined,
-        boxShadow: checked
-          ? `0 0 20px ${color}40`
-          : undefined,
-      }}
-    >
-      {checked && (
-        <Check
-          className="w-6 h-6 text-white"
-          style={{ color }}
-        />
-      )}
-    </button>
+    <>
+      <button
+        onClick={handleToggle}
+        disabled={disabled}
+        className={`checkin-toggle ${checked ? "checked" : "unchecked"} ${
+          isAnimating ? "scale-90" : "scale-100"
+        }`}
+        style={{
+          borderColor: checked ? color : undefined,
+          boxShadow: checked
+            ? `0 0 20px ${color}40`
+            : undefined,
+        }}
+      >
+        {checked && (
+          <Check
+            className="w-6 h-6 text-white"
+            style={{ color }}
+          />
+        )}
+      </button>
+
+      <CheckinNoteModal
+        habit={habit}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onQuickComplete={handleQuickComplete}
+        onCompleteWithNote={handleCompleteWithNote}
+      />
+    </>
   );
 }

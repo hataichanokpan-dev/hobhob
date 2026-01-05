@@ -18,15 +18,16 @@ export interface AuthUser {
 }
 
 // ============ Habit Types ============
-export type HabitFrequency = "daily" | "weekly";
+export type HabitFrequency = "daily" | "weekly" | "monthly";
 
 export interface Habit {
   id: string;
   name: string;
+  description?: string; // Optional description for the habit
   icon: string;
   color: string;
   frequency: HabitFrequency;
-  targetDays?: number[]; // For weekly habits: [0-6] where 0 = Monday
+  targetDays?: number[]; // For weekly: [0-6] where 0 = Monday, for monthly: [1-31] day numbers
   isActive: boolean;
   createdAt: number;
   updatedAt: number;
@@ -34,6 +35,7 @@ export interface Habit {
 
 export interface CreateHabitInput {
   name: string;
+  description?: string;
   icon: string;
   color: string;
   frequency: HabitFrequency;
@@ -46,7 +48,13 @@ export interface UpdateHabitInput extends Partial<CreateHabitInput> {
 }
 
 // ============ Check-in Types ============
-export type CheckinValue = boolean | null;
+export type CheckinValue = boolean | null | CheckinData;
+
+export interface CheckinData {
+  checked: boolean;
+  note?: string;
+  timestamp: number;
+}
 
 export interface DayCheckins {
   [habitId: string]: CheckinValue;

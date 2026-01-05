@@ -18,7 +18,11 @@
       "Bash(npm run dev)",
       "Bash(cat:*)",
       "Bash(firebase deploy:*)",
-      "Bash(firebase use:*)"
+      "Bash(firebase use:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(taskkill:*)",
+      "Bash(del:*)"
     ]
   }
 }

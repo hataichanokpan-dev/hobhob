@@ -2,6 +2,9 @@ import { database } from "@/lib/firebase/client";
 import { ref, set, get, update, remove, onValue } from "firebase/database";
 import type { UserProfile, Habit, DayCheckins, HabitStats } from "@/types";
 
+// Re-export Firebase database functions
+export { ref, update, remove, onValue };
+
 /**
  * Get user database reference path
  */
@@ -136,6 +139,19 @@ export function listenToStats(
 ): () => void {
   const statsRef = getStatsRef(uid);
   return onValue(statsRef, (snapshot) => {
+    callback(snapshot.val());
+  });
+}
+
+/**
+ * Listen to all checkins changes
+ */
+export function listenToAllCheckins(
+  uid: string,
+  callback: (checkins: Record<string, DayCheckins> | null) => void
+): () => void {
+  const checkinsRef = ref(database, `users/${uid}/checkins`);
+  return onValue(checkinsRef, (snapshot) => {
     callback(snapshot.val());
   });
 }

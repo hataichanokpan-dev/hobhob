@@ -147,9 +147,12 @@ export function getCheckinsForRange(
     const dateStr = formatDateToString(date, timezone);
 
     if (dateStr in checkins && habitId in checkins[dateStr]) {
+      const value = checkins[dateStr][habitId];
+      // Handle both boolean and CheckinData formats
+      const checked = typeof value === "object" && value !== null ? value.checked : value;
       result.push({
         date: dateStr,
-        checked: checkins[dateStr][habitId],
+        checked,
       });
     } else {
       result.push({
