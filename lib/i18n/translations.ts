@@ -31,6 +31,7 @@ export const translations = {
       habits: "Habits",
       stats: "Statistics",
       history: "History",
+      leaderboard: "Leaderboard",
       settings: "Settings",
       menu: "Menu",
       navigateYourApp: "Navigate your app",
@@ -42,6 +43,7 @@ export const translations = {
       habits: "Manage your habits",
       stats: "View your progress",
       history: "View your history",
+      leaderboard: "See top habit builders",
       settings: "App preferences",
     },
 
@@ -199,6 +201,21 @@ export const translations = {
       },
     },
 
+    // Leaderboard Page
+    leaderboard: {
+      title: "Leaderboard",
+      description: "See the top habit builders",
+      searchPlaceholder: "Search by name...",
+      totalCount: "{count} habit builders",
+      resultsCount: "{count} result(s)",
+      empty: "No users on the leaderboard yet",
+      noResults: "No users found matching your search",
+      follow: "Follow",
+      unfollow: "Unfollow",
+      following: "Following",
+      you: "You",
+    },
+
     // Settings Page
     settings: {
       title: "Settings",
@@ -309,6 +326,7 @@ export const translations = {
       habits: "นิสัย",
       stats: "สถิติ",
       history: "ประวัติ",
+      leaderboard: "ตารางผู้นำ",
       settings: "ตั้งค่า",
       menu: "เมนู",
       navigateYourApp: "นำทางในแอป",
@@ -320,6 +338,7 @@ export const translations = {
       habits: "จัดการนิสัยของคุณ",
       stats: "ดูความคืดหน้า",
       history: "ดูประวัติของคุณ",
+      leaderboard: "ดูผู้สร้างนิสัยระดับตำ",
       settings: "การตั้งค่าแอป",
     },
 
@@ -475,6 +494,21 @@ export const translations = {
         title: "เช็คอินล่าสุด",
         empty: "ไม่พบเช็คอินสำหรับช่วงเวลาที่เลือก",
       },
+    },
+
+    // Leaderboard Page
+    leaderboard: {
+      title: "ตารางผู้นำ",
+      description: "ดูผู้สร้างนิสัยระดับตำ",
+      searchPlaceholder: "ค้นหาด้วยชื่อ...",
+      totalCount: "{count} ผู้สร้างนิสัย",
+      resultsCount: "{count} ผลลัพธ์",
+      empty: "ยังไม่มีผู้ใช้ในตารางผู้นำ",
+      noResults: "ไม่พบผู้ใช้ที่ตรงกับการค้นหา",
+      follow: "ติดตาม",
+      unfollow: "เลิกติดตาม",
+      following: "กำลังติดตาม",
+      you: "คุณ",
     },
 
     // Settings Page

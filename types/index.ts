@@ -86,6 +86,20 @@ export interface UserData {
   stats: Stats;
 }
 
+// ============ Leaderboard Types ============
+export interface LeaderboardUser {
+  uid: string;
+  profile: UserProfile;
+  totalStreak: number;
+  bestStreak: number;
+}
+
+// ============ Follow Types ============
+export interface Follows {
+  following: { [uid: string]: number }; // uid -> timestamp
+  followers: { [uid: string]: number }; // uid -> timestamp
+}
+
 // ============ Store State ============
 export interface UserStoreState {
   user: User | null;

@@ -25,11 +25,12 @@ export default function AppLayout({
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       <AppHeader onMenuClick={handleMenuClick} />
-      <main className="flex-1 pt-2">
+      <main className="flex-1 pt-2 relative z-10">
         {children}
       </main>
       <AppFooter />
       <AppSidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+      
       <CuteBackground />
     </div>
   );

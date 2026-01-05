@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock } from "lucide-react";
+import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/use-user-store";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -70,6 +70,12 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
       labelKey: "nav.history",
       path: "/history",
       descriptionKey: "navDescriptions.history",
+    },
+    {
+      icon: Trophy,
+      labelKey: "nav.leaderboard",
+      path: "/leaderboard",
+      descriptionKey: "navDescriptions.leaderboard",
     },
     {
       icon: BarChart3,
@@ -141,7 +147,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   <img
                     src={userProfile.photoURL}
                     alt={userProfile.displayName || "User"}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-[var(--color-border)]"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-border)]"
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">

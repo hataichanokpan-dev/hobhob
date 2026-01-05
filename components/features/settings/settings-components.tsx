@@ -19,14 +19,26 @@ export function ProfileCard({ profile }: { profile: UserProfile | null }) {
     <div className="glass-card p-6">
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white font-bold">
-          {profile.displayName.charAt(0).toUpperCase()}
-        </div>
+        {profile.photoURL ? (
+          <img
+            src={profile.photoURL}
+            alt={profile.displayName || "User"}
+            className="w-24 h-24 rounded-full object-cover border-2 border-[var(--color-border)]"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
+            {profile.displayName?.charAt(0).toUpperCase() || "U"}
+          </div>
+        )}
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h2 className="font-semibold text-lg truncate">{profile.displayName}</h2>
-          <p className="text-sm text-muted-foreground truncate">{profile.email}</p>
+          <h2 className="font-semibold text-lg truncate">
+            {profile.displayName}
+          </h2>
+          <p className="text-sm text-muted-foreground truncate">
+            {profile.email}
+          </p>
           <p className="text-xs text-muted-foreground mt-1">
             Joined {new Date(profile.createdAt).toLocaleDateString()}
           </p>
@@ -56,7 +68,9 @@ export function SettingItem({
           </div>
           <div>
             <h3 className="font-medium">{label}</h3>
-            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+            {description && (
+              <p className="text-sm text-muted-foreground">{description}</p>
+            )}
           </div>
         </div>
         {action}
