@@ -122,13 +122,18 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
 
     // Only include users who have some activity
     if (totalCheckins > 0) {
+      // Validate profile data before using
+      const displayName = profile.displayName ? String(profile.displayName).trim() : "Anonymous";
+      const photoURL = profile.photoURL ? String(profile.photoURL).trim() : null;
+      const timezone = profile.timezone ? String(profile.timezone).trim() : "UTC";
+
       leaderboardUsers.push({
         uid,
         profile: {
-          displayName: profile.displayName || "Anonymous",
-          photoURL: profile.photoURL || null,
+          displayName,
+          photoURL,
           email: "", // Not exposed publicly
-          timezone: profile.timezone || "UTC",
+          timezone,
           createdAt: profile.createdAt || 0,
           lastLoginAt: profile.lastLoginAt || 0,
         },
@@ -221,6 +226,9 @@ export function listenToFollows(
  * Check if current user is following another user
  */
 export function isFollowing(follows: Follows | null, targetUid: string): boolean {
-  return follows?.following[targetUid] !== undefined;
+  if (!follows || !follows.following) {
+    return false;
+  }
+  return follows.following[targetUid] !== undefined;
 }
 

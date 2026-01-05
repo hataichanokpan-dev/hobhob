@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Trophy, UserMinus, UserPlus, Medal, Award } from "lucide-react";
 import type { LeaderboardUser } from "@/types";
+import { useState } from "react";
 
 interface LeaderboardUserCardProps {
   user: LeaderboardUser;
@@ -23,6 +24,12 @@ export function LeaderboardUserCard({
   onUnfollow,
   isLoading = false,
 }: LeaderboardUserCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  // Safely get display name
+  const displayName = user.profile?.displayName || "Anonymous";
+  const photoURL = user.profile?.photoURL;
+
   // Rank badge
   const getRankBadge = (rank: number) => {
     if (rank === 1) {
@@ -88,15 +95,16 @@ export function LeaderboardUserCard({
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
         >
-          {user.profile.photoURL ? (
+          {photoURL && !imageError ? (
             <img
-              src={user.profile.photoURL}
-              alt={user.profile.displayName}
+              src={photoURL}
+              alt={displayName}
               className="w-14 h-14 rounded-full object-cover border-2 border-[var(--color-border)] shadow-md"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold text-xl shadow-md">
-              {user.profile.displayName?.charAt(0).toUpperCase() || "U"}
+              {displayName?.charAt(0)?.toUpperCase() || "U"}
             </div>
           )}
           {isCurrentUser && (
@@ -111,7 +119,7 @@ export function LeaderboardUserCard({
         {/* User Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-semibold text-base">{user.profile.displayName}</h3>
+            <h3 className="font-semibold text-base">{displayName}</h3>
             {isCurrentUser && (
               <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-[var(--color-brand)]/20 text-[var(--color-brand)] rounded-full">
                 You
