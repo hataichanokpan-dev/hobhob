@@ -137,9 +137,17 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
           {user && userProfile && (
             <div className="p-4 border-b border-[var(--color-border)]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
-                  {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
-                </div>
+                {userProfile.photoURL ? (
+                  <img
+                    src={userProfile.photoURL}
+                    alt={userProfile.displayName || "User"}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-[var(--color-border)]"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
+                    {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{userProfile.displayName}</p>
                   <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>

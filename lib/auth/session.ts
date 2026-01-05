@@ -142,9 +142,18 @@ async function ensureUserProfile(user: FirebaseUser): Promise<void> {
 
     await saveUserProfile(user.uid, profile);
   } else {
-    // Update last login
+    // Update last login and sync photoURL from Google Auth
+    const updates: { lastLoginAt: number; photoURL?: string | null } = {
+      lastLoginAt: Date.now(),
+    };
+
+    // Sync photoURL if available from auth provider
+    if (user.photoURL !== undefined) {
+      updates.photoURL = user.photoURL;
+    }
+
     const profileRef = getProfileRef(user.uid);
-    await update(profileRef, { lastLoginAt: Date.now() });
+    await update(profileRef, updates);
   }
 }
 
