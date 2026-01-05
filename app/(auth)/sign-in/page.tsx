@@ -1,15 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { signInWithGoogle, signInWithDevUser, isDevBypassEnabled } from "@/lib/auth/session";
+import { useRouter } from "next/navigation";
+import { signInWithGoogle, signInWithDevUser, isDevBypassEnabled, onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
 import { X } from "lucide-react";
 
 export default function SignInPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const showDevButton = isDevBypassEnabled();
+
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+    let isMounted = true;
+
+    // Check for dev user first
+    const devUser = getStoredDevUser();
+    if (devUser) {
+      console.log("🔧 Dev mode: User already authenticated, redirecting to /today");
+      router.push("/today");
+      return;
+    }
+
+    // Check Firebase auth state
+    unsubscribe = onAuthStateChange((authUser) => {
+      if (!isMounted) return;
+
+      if (authUser) {
+        console.log("✅ User already authenticated, redirecting to /today");
+        router.push("/today");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) unsubscribe();
+    };
+  }, [router]);
 
   function getErrorMessage(err: unknown): string {
     if (err && typeof err === "object" && "code" in err) {
@@ -88,33 +119,60 @@ export default function SignInPage() {
     },
   } as const;
 
+  // Floating decorative elements
+  const FloatingEmoji = ({ emoji, delay, x, y }: { emoji: string; delay: number; x: string; y: string }) => (
+    <motion.div
+      className="absolute text-2xl opacity-20 pointer-events-none"
+      style={{ left: x, top: y }}
+      animate={{
+        y: [0, -15, 0],
+        rotate: [0, 10, -10, 0],
+      }}
+      transition={{
+        duration: 4,
+        repeat: Infinity,
+        delay,
+        ease: "easeInOut",
+      }}
+    >
+      {emoji}
+    </motion.div>
+  );
+
   return (
     <motion.div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-background)]"
+      className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-background)] relative overflow-hidden"
     >
-      <div className="w-full max-w-sm">
-        {/* Logo & Brand - Minimal with Animation */}
+      {/* Floating cute decorations */}
+      <FloatingEmoji emoji="✨" delay={0} x="10%" y="20%" />
+      <FloatingEmoji emoji="🌟" delay={1} x="85%" y="15%" />
+      <FloatingEmoji emoji="💫" delay={2} x="15%" y="70%" />
+      <FloatingEmoji emoji="⭐" delay={0.5} x="80%" y="75%" />
+
+      <div className="w-full max-w-sm relative z-10">
+        {/* Logo & Brand - Enhanced Cute Animation */}
         <motion.div
           variants={itemVariants}
           className="text-center mb-8"
         >
           <motion.div
             className="inline-flex items-center justify-center mb-4 relative"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            whileHover={{ scale: 1.08 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
-            {/* Glow effect */}
+            {/* Enhanced glow effect */}
             <motion.div
-              className="absolute inset-0 rounded-2xl blur-xl opacity-50"
+              className="absolute inset-0 rounded-3xl blur-2xl opacity-60"
               style={{
-                background: "linear-gradient(135deg, #ff6a00, #ff9933)",
+                background: "linear-gradient(135deg, #ff6a00, #ff9933, #ffb84d)",
               }}
               animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
+                scale: [1, 1.15, 1],
+                opacity: [0.4, 0.6, 0.4],
+                rotate: [0, 5, -5, 0],
               }}
               transition={{
                 duration: 3,
@@ -125,9 +183,10 @@ export default function SignInPage() {
             <motion.img
               src="/icons/hobhob_v2.png"
               alt="HobHob"
-              className="relative w-32 h-32 rounded-2xl shadow-sm"
+              className="relative w-32 h-32 rounded-2xl shadow-lg"
               animate={{
-                rotate: [0, 2, -2, 0],
+                y: [0, -8, 0],
+                rotate: [0, 3, -3, 0],
               }}
               transition={{
                 duration: 4,
@@ -135,14 +194,23 @@ export default function SignInPage() {
                 ease: "easeInOut",
               }}
             />
+           
           </motion.div>
           <motion.h1
             className="text-2xl font-semibold mb-1"
             style={{
-              background: "linear-gradient(90deg, #ff6a00, #ff9933)",
+              background: "linear-gradient(90deg, #ff6a00, #ff9933, #ffb84d)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
+            }}
+            animate={{
+              backgroundPosition: ["0%", "100%", "0%"],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
             }}
           >
             HobHob
@@ -152,7 +220,7 @@ export default function SignInPage() {
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            Build better habits, one day at a time
+            Build better habits, one day at a time ✨
           </motion.p>
         </motion.div>
 
@@ -279,10 +347,10 @@ export default function SignInPage() {
           </motion.div>
         </motion.div>
 
-        {/* Footer - Minimal with Animation */}
+        {/* Footer - Enhanced Cute Animation */}
         <motion.div
           variants={itemVariants}
-          className="mt-6 text-center"
+          className="mt-6 text-center space-y-2"
         >
           <motion.p
             className="text-xs text-muted-foreground inline-flex items-center gap-1"
@@ -292,7 +360,7 @@ export default function SignInPage() {
             Made with
             <motion.span
               animate={{
-                scale: [1, 1.2, 1],
+                scale: [1, 1.3, 1],
               }}
               transition={{
                 duration: 1,
@@ -300,10 +368,11 @@ export default function SignInPage() {
                 ease: "easeInOut",
               }}
             >
-              ❤️
+              💕
             </motion.span>
             for habit builders
           </motion.p>
+          
         </motion.div>
       </div>
     </motion.div>

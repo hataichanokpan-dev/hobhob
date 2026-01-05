@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { SplashScreen } from "@/components/layout/splash-screen";
+import { CuteBackground } from "@/components/layout/cute-background";
 
 export default function AuthLayout({
   children,
@@ -41,7 +42,12 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-      {!showSplash && children}
+      {!showSplash && (
+        <>
+          {children}
+         
+        </>
+      )}
     </div>
   );
 }

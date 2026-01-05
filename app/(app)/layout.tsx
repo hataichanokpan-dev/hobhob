@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { CuteBackground } from "@/components/layout/cute-background";
 
 export default function AppLayout({
   children,
@@ -29,6 +30,7 @@ export default function AppLayout({
       </main>
       <AppFooter />
       <AppSidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+      <CuteBackground />
     </div>
   );
 }
