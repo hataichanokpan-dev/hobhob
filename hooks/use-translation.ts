@@ -1,14 +1,6 @@
 import { useLanguageStore } from "@/store/use-language-store";
 import { translations, type TranslationKey } from "@/lib/i18n/translations";
 
-type TranslationPath = {
-  [K in keyof TranslationKey]: TranslationKey[K] extends object
-    ? `${K}.${TranslationPath<TranslationKey[K]>}`
-    : K
-}[keyof TranslationKey];
-
-type TranslationPathResult = TranslationKey;
-
 /**
  * Get a nested value from an object using a dot notation path
  */
