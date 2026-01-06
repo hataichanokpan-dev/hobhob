@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Calendar, Flame, Target } from "lucide-react";
+import { Plus, Calendar, Flame, Target, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { listenToHabits } from "@/lib/db";
 import { habitsToArray } from "@/lib/db/habits";
 import { useTranslation } from "@/hooks/use-translation";
@@ -12,6 +13,7 @@ import {
   toggleHabitCheckin,
   getHabitCheckin,
 } from "@/lib/db/checkins";
+import { incrementCircleCompletionCount, listenToCircleDailyStats } from "@/lib/db/circles";
 import { getTodayDateString, formatReadableDate } from "@/lib/utils/date";
 import { filterHabitsForToday } from "@/lib/utils/habits";
 import { useUserStore } from "@/store/use-user-store";
@@ -20,11 +22,13 @@ import { HabitForm } from "@/components/features/habits/habit-form";
 import type { DayCheckins } from "@/types";
 
 export default function TodayPage() {
+  const router = useRouter();
   const { user, userProfile, habits, setHabits, setLoading } = useUserStore();
   const { t, tp } = useTranslation();
   const [checkins, setCheckins] = useState<DayCheckins | null>(null);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [showHabitForm, setShowHabitForm] = useState(false);
+  const [circleNotification, setCircleNotification] = useState<{ message: string; habitId: string } | null>(null);
 
   // Get user's timezone or default to UTC
   const timezone = userProfile?.timezone || "UTC";
@@ -67,11 +71,13 @@ export default function TodayPage() {
       if (!user) return;
 
       const currentValue = getHabitCheckin(checkins, habitId);
+      const habit = habits.find((h) => h.id === habitId);
+      const isCheckingIn = !currentValue.checked;
 
       // Optimistic update
       setCheckins((prev) => ({
         ...prev,
-        [habitId]: !currentValue.checked,
+        [habitId]: isCheckingIn,
       }));
 
       setIsUpdating(habitId);
@@ -84,6 +90,32 @@ export default function TodayPage() {
           currentValue.checked,
           note
         );
+
+        // If checking in a circle-linked habit, increment circle completion
+        if (isCheckingIn && habit?.circleId) {
+          await incrementCircleCompletionCount(habit.circleId, today);
+
+          // Fetch the updated circle stats to get completion count
+          const unsubscribe = listenToCircleDailyStats(habit.circleId, today, (stats) => {
+            const completedCount = stats?.completedCount || 1; // At least 1 (the user)
+            const peopleKey = completedCount === 1 ? "circleNotification.person" : "circleNotification.people";
+            setCircleNotification({
+              message: tp("circleNotification.completedWithYou", {
+                count: completedCount,
+                people: t(peopleKey),
+              }),
+              habitId,
+            });
+
+            // Auto-hide notification after 3 seconds
+            setTimeout(() => {
+              setCircleNotification(null);
+            }, 3000);
+          });
+
+          // Clean up listener after 5 seconds
+          setTimeout(() => unsubscribe(), 5000);
+        }
       } catch (error) {
         // Rollback on error
         console.error("Failed to toggle check-in:", error);
@@ -95,7 +127,7 @@ export default function TodayPage() {
         setIsUpdating(null);
       }
     },
-    [user, today, checkins]
+    [user, today, checkins, habits]
   );
 
   const handleHabitFormSuccess = () => {
@@ -128,10 +160,27 @@ export default function TodayPage() {
 
   return (
     <>
+      {/* Circle Completion Notification - Cute & Minimal */}
+      {circleNotification && (
+        <div className="fixed top-24 left-4 right-4 z-[60] max-w-sm mx-auto animate-slide-down">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-card)] shadow-lg border border-[var(--color-border)]">
+            {/* Cute mini icon */}
+            <div className="w-9 h-9 rounded-xl bg-[var(--color-brand)]/10 flex items-center justify-center animate-scale-in">
+              <span className="text-lg">✨</span>
+            </div>
+
+            {/* Message */}
+            <p className="flex-1 text-sm font-medium leading-snug">
+              {circleNotification.message}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="p-4 space-y-6 max-w-2xl mx-auto">
         {/* Welcome Section - Professional & Minimal */}
         <div className="surface p-6">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-[var(--color-brand)]" />
@@ -142,20 +191,32 @@ export default function TodayPage() {
               </p>
             </div>
 
-            {/* Completion Stats - Clean Design */}
-            {todaysHabits.length > 0 && (
-              <div className="text-right">
-                <div className="text-3xl font-semibold gradient-text">
-                  {completionRate}%
+            <div className="flex items-center gap-3">
+              {/* Circles Button */}
+              <button
+                onClick={() => router.push("/circles")}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 transition-colors"
+                aria-label="View Circles"
+              >
+                <Users className="w-4 h-4 text-[var(--color-brand)]" />
+                <span className="text-sm font-medium">Circles</span>
+              </button>
+
+              {/* Completion Stats - Clean Design */}
+              {todaysHabits.length > 0 && (
+                <div className="text-right">
+                  <div className="text-3xl font-semibold gradient-text">
+                    {completionRate}%
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {tp("today.completedCount", {
+                      completed: completedCount,
+                      total: todaysHabits.length,
+                    })}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {tp("today.completedCount", {
-                    completed: completedCount,
-                    total: todaysHabits.length,
-                  })}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Progress Bar - Bear.app style */}

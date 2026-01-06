@@ -464,6 +464,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Animations */
 @keyframes slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slide-down { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes scale-in { from { transform: scale(0.98); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
@@ -560,6 +561,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .animate-fade-in { animation: fade-in var(--duration-default) ease-out; }
 .animate-fade-out { animation: fade-out var(--duration-default) ease-out; }
+.animate-scale-in { animation: scale-in var(--duration-default) ease-out; }
 .animate-scale-out { animation: scale-out var(--duration-default) ease-out; }
 .animate-bounce-check { animation: bounce-check 250ms ease-out; }
 .animate-shake { animation: shake 250ms ease-out; }

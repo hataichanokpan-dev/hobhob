@@ -31,6 +31,7 @@ export interface Habit {
   isActive: boolean;
   createdAt: number;
   updatedAt: number;
+  circleId?: string; // If present, linked to a circle
 }
 
 export interface CreateHabitInput {
@@ -100,6 +101,70 @@ export interface Follows {
   followers: { [uid: string]: number }; // uid -> timestamp
 }
 
+// ============ Circle Types ============
+export type CircleType = "open" | "private";
+
+export interface CircleHabitTemplate {
+  name: string;
+  description?: string;
+  icon: string;
+  color: string;
+  frequency: HabitFrequency;
+  targetDays?: number[];
+}
+
+export interface Circle {
+  id: string;
+  name: string;
+  description?: string; // Optional description for the circle
+  circleIcon: string; // Icon for the circle itself (social context)
+  circleColor: string; // Color for the circle itself
+  type: CircleType;
+  createdAt: number;
+  createdBy: string; // uid
+  memberCount?: number;
+  activeToday?: number;
+  // For open circles
+  publicHabitTemplate: CircleHabitTemplate;
+  // For private circles only
+  memberIds?: string[];
+  inviteCode?: string;
+}
+
+export interface CircleDailyStats {
+  date: string;
+  completedCount: number;
+  lastUpdated: number;
+}
+
+export interface UserCircleMembership {
+  circleId: string;
+  joinedAt: number;
+  habitId: string;
+}
+
+// Circle member with their profile and completion status
+export interface CircleMember {
+  uid: string;
+  profile: UserProfile | null;
+  habitId: string;
+  completedToday: boolean;
+}
+
+// Encouragement/reaction from one member to another
+export interface CircleEncouragement {
+  id: string;
+  circleId: string;
+  fromUserId: string;
+  toUserId: string;
+  emoji: string;
+  createdAt: number;
+}
+
+export interface CircleEncouragements {
+  [encouragementId: string]: CircleEncouragement;
+}
+
 // ============ Store State ============
 export interface UserStoreState {
   user: User | null;
@@ -116,4 +181,21 @@ export interface UserStoreActions {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   logout: () => Promise<void>;
+}
+
+// ============ Circles Store State ============
+export interface CirclesStoreState {
+  circles: Circle[];
+  userMemberships: UserCircleMembership[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface CirclesStoreActions {
+  setCircles: (circles: Circle[]) => void;
+  setUserMemberships: (memberships: UserCircleMembership[]) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  reset: () => void;
 }
