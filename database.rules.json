@@ -31,6 +31,36 @@
             // Allow authenticated users to add themselves to followers list
             ".write": "auth != null && newData.child(auth.uid).exists() === true || newData.child(auth.uid).exists() === false"
           }
+        },
+        "circles": {
+          // Users can read their own circle memberships
+          ".read": "auth != null && auth.uid == $uid",
+          // Users can write their own circle memberships
+          ".write": "auth != null && auth.uid == $uid",
+          "$circleId": {
+            ".validate": "newData.hasChildren(['joinedAt', 'habitId'])"
+          }
+        }
+      }
+    },
+    "circles": {
+      // Anyone can read circles (for discovery)
+      ".read": "auth != null",
+      // Authenticated users can create circles
+      ".write": "auth != null",
+      "$circleId": {
+        // Validate basic structure
+        ".validate": "newData.hasChildren(['name', 'type', 'createdAt', 'createdBy'])",
+        // Only creator can update their circle
+        ".write": "auth != null && (newData.exists() || data.child('createdBy').val() === auth.uid)",
+        "daily": {
+          // Anyone can read daily stats
+          ".read": "auth != null",
+          // No direct writes to daily stats - calculated from check-ins
+          ".write": "false",
+          "$date": {
+            ".validate": "newData.hasChildren(['date', 'completedCount', 'lastUpdated'])"
+          }
         }
       }
     }

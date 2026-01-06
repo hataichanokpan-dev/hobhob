@@ -29,6 +29,7 @@ export const translations = {
     nav: {
       today: "Today",
       habits: "Habits",
+      circles: "Circles",
       stats: "Statistics",
       history: "History",
       leaderboard: "Leaderboard",
@@ -41,6 +42,7 @@ export const translations = {
     navDescriptions: {
       today: "Check in your habits",
       habits: "Manage your habits",
+      circles: "Join habit circles",
       stats: "View your progress",
       history: "View your history",
       leaderboard: "See top habit builders",
@@ -216,6 +218,87 @@ export const translations = {
       you: "You",
     },
 
+    // Circles Page
+    circles: {
+      title: "Circles",
+      create: "Create",
+      inviteCode: {
+        cta: "Have an invite code?",
+        description: "Join a private circle",
+        join: "Join →",
+      },
+      search: "Search circles...",
+      noCircles: "No circles available yet",
+      noResults: "No circles found",
+    },
+
+    // Circle Form
+    circleForm: {
+      createTitle: "Create Circle",
+      editTitle: "Edit Circle",
+      circleName: "Circle Name",
+      circleNamePlaceholder: "e.g., Morning Warriors",
+      circleDescription: "Circle Description (optional)",
+      circleDescriptionPlaceholder: "What's this circle about?",
+      habitName: "Habit Name",
+      habitNamePlaceholder: "e.g., Morning Exercise",
+      habitDescription: "Habit Description (optional)",
+      habitDescriptionPlaceholder: "What's this habit about?",
+      type: {
+        label: "Circle Type",
+        open: "Open Circle",
+        private: "Private Circle",
+        openDescription: "Anyone can join",
+        privateDescription: "Invite only (2-6 members)",
+      },
+      icon: "Icon",
+      color: "Color",
+      habitIcon: "Habit Icon",
+      habitColor: "Habit Color",
+      frequency: "Frequency",
+      targetDays: "Target Days",
+      create: "Create Circle",
+      update: "Update Circle",
+      cancel: "Cancel",
+    },
+
+    // Circle Detail
+    circleDetail: {
+      join: "Join Circle",
+      joined: "You're a member",
+      leave: "Leave Circle",
+      members: "members",
+      completed: "completed today",
+      inviteCode: "Invite Code",
+      copyCode: "Copy Code",
+      regenerate: "Regenerate",
+      copied: "Copied!",
+      share: "Share this code with friends to invite them",
+      memberList: "Members",
+      creator: "Creator",
+      delete: "Delete Circle",
+      deleteConfirm: "Delete Circle?",
+      deleteWarning: "This will permanently delete \"{name}\". Members will lose access to this circle, but their habits will remain.",
+    },
+
+    // Circle Invite
+    circleInvite: {
+      title: "Join Circle",
+      enterCode: "Enter the invite code to join",
+      codePlaceholder: "ABC123",
+      invalidCode: "Enter a 6-character code",
+      continue: "Continue",
+      checking: "Checking...",
+      privateCircle: "Private Circle",
+      privateInfo: "• 2-6 members only\n• See who's in the circle\n• Encourage each other",
+      trackingHabit: "You'll track \"{name}\"",
+      join: "Join Circle",
+      joining: "Joining...",
+      differentCode: "Enter different code",
+      joinedTitle: "You're in!",
+      redirecting: "Redirecting to your habits...",
+    },
+
     // Settings Page
     settings: {
       title: "Settings",
@@ -293,6 +376,13 @@ export const translations = {
       habitDeleted: "Habit deleted successfully",
       checkinSaved: "Check-in saved",
     },
+
+    // Circle Notification
+    circleNotification: {
+      completedWithYou: "{count} {people} completed with you!",
+      person: "person",
+      people: "people",
+    },
   },
   th: {
     // Common
@@ -324,6 +414,7 @@ export const translations = {
     nav: {
       today: "วันนี้",
       habits: "นิสัย",
+      circles: "วงกลม",
       stats: "สถิติ",
       history: "ประวัติ",
       leaderboard: "ตารางผู้นำ",
@@ -336,6 +427,7 @@ export const translations = {
     navDescriptions: {
       today: "เช็คอินนิสัยของคุณ",
       habits: "จัดการนิสัยของคุณ",
+      circles: "เข้าร่วมวงกลมนิสัย",
       stats: "ดูความคืดหน้า",
       history: "ดูประวัติของคุณ",
       leaderboard: "ดูลำดับผู้สร้างนิสัย",
@@ -511,6 +603,87 @@ export const translations = {
       you: "คุณ",
     },
 
+    // Circles Page
+    circles: {
+      title: "วงกลม",
+      create: "สร้าง",
+      inviteCode: {
+        cta: "มีรหัสเชิญหรือไม่?",
+        description: "เข้าร่วมวงกลมส่วนตัว",
+        join: "เข้าร่วม →",
+      },
+      search: "ค้นหาวงกลม...",
+      noCircles: "ยังไม่มีวงกลม",
+      noResults: "ไม่พบวงกลม",
+    },
+
+    // Circle Form
+    circleForm: {
+      createTitle: "สร้างวงกลม",
+      editTitle: "แก้ไขวงกลม",
+      circleName: "ชื่อวงกลม",
+      circleNamePlaceholder: "เช่น นักรบมือเช้า",
+      circleDescription: "คำอธิบายวงกลม (ไม่บังคับ)",
+      circleDescriptionPlaceholder: "วงกลมนี้เกี่ยวกับอะไร?",
+      habitName: "ชื่อนิสัย",
+      habitNamePlaceholder: "เช่น ออกกำลังกายเช้า",
+      habitDescription: "คำอธิบายนิสัย (ไม่บังคับ)",
+      habitDescriptionPlaceholder: "นิสัยนี้เกี่ยวกับอะไร?",
+      type: {
+        label: "ประเภทวงกลม",
+        open: "วงกลมเปิด",
+        private: "วงกลมส่วนตัว",
+        openDescription: "ทุกคนเข้าร่วมได้",
+        privateDescription: "เฉพาะคนที่ได้รับเชิญ (2-6 คน)",
+      },
+      icon: "ไอคอน",
+      color: "สี",
+      habitIcon: "ไอคอนนิสัย",
+      habitColor: "สีนิสัย",
+      frequency: "ความถี่",
+      targetDays: "วันเป้าหมาย",
+      create: "สร้างวงกลม",
+      update: "อัปเดตวงกลม",
+      cancel: "ยกเลิก",
+    },
+
+    // Circle Detail
+    circleDetail: {
+      join: "เข้าร่วมวงกลม",
+      joined: "คุณเป็นสมาชิกแล้ว",
+      leave: "ออกจากวงกลม",
+      members: "สมาชิก",
+      completed: "ทำสำเร็จวันนี้",
+      inviteCode: "รหัสเชิญ",
+      copyCode: "คัดลอกรหัส",
+      regenerate: "สร้างใหม่",
+      copied: "คัดลอกแล้ว!",
+      share: "แชร์รหัสนี้กับเพื่อนเพื่อเชิญเข้าร่วม",
+      memberList: "สมาชิก",
+      creator: "ผู้สร้าง",
+      delete: "ลบวงกลม",
+      deleteConfirm: "ลบวงกลม?",
+      deleteWarning: "การดำเนินการนี้จะลบ \"{name}\" อย่างถาวร สมาชิกจะไม่สามารถเข้าถึงวงกลมนี้ได้อีก แต่นิสัยของพวกเขาจะยังคงอยู่",
+    },
+
+    // Circle Invite
+    circleInvite: {
+      title: "เข้าร่วมวงกลม",
+      enterCode: "ป้อนรหัสเชิญเพื่อเข้าร่วม",
+      codePlaceholder: "ABC123",
+      invalidCode: "ป้อนรหัส 6 ตัวอักษร",
+      continue: "ดำเนินการต่อ",
+      checking: "กำลังตรวจสอบ...",
+      privateCircle: "วงกลมส่วนตัว",
+      privateInfo: "• 2-6 สมาชิกเท่านั้น\n• เห็นว่าใครอยู่ในวงกลม\n• ส่งเสริมซึ่งกันและกัน",
+      trackingHabit: "คุณจะติดตาม \"{name}\"",
+      join: "เข้าร่วมวงกลม",
+      joining: "กำลังเข้าร่วม...",
+      differentCode: "ป้อนรหัสอื่น",
+      joinedTitle: "เข้าร่วมแล้ว!",
+      redirecting: "กำลังไปที่นิสัยของคุณ...",
+    },
+
     // Settings Page
     settings: {
       title: "ตั้งค่า",
@@ -587,6 +760,13 @@ export const translations = {
       habitUpdated: "อัปเดตนิสัยสำเร็จ",
       habitDeleted: "ลบนิสัยสำเร็จ",
       checkinSaved: "บันทึกการเช็คอินสำเร็จ",
+    },
+
+    // Circle Notification
+    circleNotification: {
+      completedWithYou: "{count} {people} ทำสำเร็จด้วยกัน!",
+      person: "คน",
+      people: "คน",
     },
   },
 } as const;

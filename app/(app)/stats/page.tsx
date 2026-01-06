@@ -75,7 +75,7 @@ export default function StatsPage() {
 
     // Calculate completion for last 7 days
     let completed7d = 0;
-    let total7d = 6;
+    let total7d = 0;
     for (const dateStr of last7Days) {
       if (dateStr in checkins && selectedHabitId in checkins[dateStr]) {
         const value = checkins[dateStr][selectedHabitId];
@@ -91,7 +91,7 @@ export default function StatsPage() {
 
     // Calculate completion for last 30 days
     let completed30d = 0;
-    let total30d = 29;
+    let total30d = 0;
     for (const dateStr of last30Days) {
       if (dateStr in checkins && selectedHabitId in checkins[dateStr]) {
         const value = checkins[dateStr][selectedHabitId];
