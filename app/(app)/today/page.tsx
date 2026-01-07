@@ -35,6 +35,8 @@ import { HabitCard } from "@/components/features/habits/habit-card";
 import { HabitForm } from "@/components/features/habits/habit-form";
 import { TargetCard } from "@/components/features/targets/target-card";
 import { TargetDetail } from "@/components/features/targets/target-detail";
+import { PWAInstallPrompt } from "@/components/features/pwa/pwa-install-prompt";
+import { useFirstTime } from "@/hooks/use-first-time";
 import type {
   DayCheckins,
   Target as TargetType,
@@ -53,6 +55,7 @@ export default function TodayPage() {
     setActiveInstances,
   } = useTargetsStore();
   const { t, tp } = useTranslation();
+  const { hasSeenPrompt, isLoading: isFirstTimeLoading } = useFirstTime();
   const [checkins, setCheckins] = useState<DayCheckins | null>(null);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [showHabitForm, setShowHabitForm] = useState(false);
@@ -64,6 +67,7 @@ export default function TodayPage() {
     target: TargetType;
     instance: TargetInstance;
   } | null>(null);
+  const [showPWAInstall, setShowPWAInstall] = useState(false);
 
   // Ref for targets section
   const targetsSectionRef = useRef<HTMLDivElement>(null);
@@ -76,6 +80,18 @@ export default function TodayPage() {
     targetsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
   const today = getTodayDateString(timezone);
+
+  // Show PWA install prompt on first visit (after delay)
+  useEffect(() => {
+    if (isFirstTimeLoading || hasSeenPrompt || !user) return;
+
+    // Show prompt after 3 seconds
+    const timer = setTimeout(() => {
+      setShowPWAInstall(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [hasSeenPrompt, isFirstTimeLoading, user]);
 
   // Load habits
   useEffect(() => {
@@ -515,6 +531,11 @@ export default function TodayPage() {
             ).then(setActiveInstances);
           }}
         />
+      )}
+
+      {/* PWA Install Prompt */}
+      {showPWAInstall && (
+        <PWAInstallPrompt onClose={() => setShowPWAInstall(false)} />
       )}
     </>
   );

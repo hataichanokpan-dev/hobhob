@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target } from "lucide-react";
+import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/use-user-store";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -151,9 +151,12 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
             </button>
           </div>
 
-          {/* User Profile Section */}
+          {/* User Profile Section - Clickable */}
           {user && userProfile && (
-            <div className="p-4 border-b border-[var(--color-border)]">
+            <button
+              onClick={() => handleNavigate("/profile")}
+              className="p-4 border-b border-[var(--color-border)] w-full text-left hover:bg-[var(--color-muted)]/50 transition-colors"
+            >
               <div className="flex items-center gap-3">
                 {userProfile.photoURL ? (
                   <img
@@ -170,8 +173,9 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   <p className="font-medium truncate">{userProfile.displayName}</p>
                   <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                 </div>
+                <User className="w-5 h-5 text-muted-foreground" />
               </div>
-            </div>
+            </button>
           )}
 
           {/* Navigation */}

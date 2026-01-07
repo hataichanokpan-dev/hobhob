@@ -457,6 +457,42 @@ export const translations = {
       archive: "Archive",
       archiveConfirm: "Archive this target? It will no longer create new instances.",
     },
+
+    // PWA Install Prompt
+    pwaInstall: {
+      title: "Install HobHob",
+      subtitle: "Add to home screen for best experience",
+      gotIt: "Got it!",
+      ios: {
+        notSafari: "Please open this page in Safari to install HobHob on your device.",
+        step1: "Tap the Share button",
+        step2: "Scroll down and tap 'Add to Home Screen'",
+      },
+      android: {
+        chrome: "Look for the 'Add to Home Screen' banner at the bottom or tap the menu (⋮) and select 'Install app' or 'Add to Home Screen'.",
+        other: "Tap the menu (⋮) and look for 'Install app' or 'Add to Home Screen' option.",
+      },
+    },
+
+    // Profile
+    profile: {
+      title: "Profile",
+      activeHabits: "active",
+      circles: "circles",
+      myCircles: "My Circles",
+      noCircles: "No circles joined yet",
+      noDescription: "No description",
+      members: "members",
+      topHabits: "Top Habits by Streak",
+      noHabits: "No habits yet",
+      targetsSummary: "Targets Summary",
+      noTargets: "No targets yet",
+      totalTargets: "Total",
+      completed: "Complete",
+      rate: "Rate",
+      recentlyCompleted: "Recently Completed",
+      activeTargets: "Active Targets",
+    },
   },
   th: {
     // Common
@@ -915,6 +951,42 @@ export const translations = {
       edit: "แก้ไข",
       archive: "เก็บถาวร",
       archiveConfirm: "เก็บเป้าหมายนี้ถาวร? จะไม่สร้างอินสแตนซ์ใหม่อีก",
+    },
+
+    // PWA Install Prompt
+    pwaInstall: {
+      title: "ติดตั้ง HobHob",
+      subtitle: "เพิ่มไปยังหน้าจอโฮมเพื่อประสบการณ์ที่ดีที่สุด",
+      gotIt: "เข้าใจแล้ว!",
+      ios: {
+        notSafari: "กรุณาเปิดหน้านี้ใน Safari เพื่อติดตั้ง HobHob บนอุปกรณ์ของคุณ",
+        step1: "แตะที่ปุ่มแชร์",
+        step2: "เลื่อนลงและแตะ 'เพิ่มไปยังหน้าจอโฮม'",
+      },
+      android: {
+        chrome: "มองหาแบนเนอร์ 'เพิ่มไปยังหน้าจอโฮม' ที่ด้านล่าง หรือแตะที่เมนู (⋮) และเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
+        other: "แตะที่เมนู (⋮) และมองหาตัวเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
+      },
+    },
+
+    // Profile
+    profile: {
+      title: "โปรไฟล์",
+      activeHabits: "นิสัยที่ใช้งาน",
+      circles: "วงกลม",
+      myCircles: "วงกลมของฉัน",
+      noCircles: "ยังไม่ได้เข้าร่วมวงกลม",
+      noDescription: "ไม่มีคำอธิบาย",
+      members: "สมาชิก",
+      topHabits: "นิสัยยอดนิยม",
+      noHabits: "ยังไม่มีนิสัย",
+      targetsSummary: "สรุปเป้าหมาย",
+      noTargets: "ยังไม่มีเป้าหมาย",
+      totalTargets: "ทั้งหมด",
+      completed: "สำเร็จ",
+      rate: "อัตรา",
+      recentlyCompleted: "สำเร็จล่าสุด",
+      activeTargets: "เป้าหมายที่กำลังดำเนินการ",
     },
   },
 } as const;
