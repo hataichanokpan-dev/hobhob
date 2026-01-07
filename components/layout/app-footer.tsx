@@ -18,7 +18,7 @@ export function AppFooter() {
                 alt="HobHob"
                 className="w-6 h-6 rounded-lg shadow-md shadow-[var(--color-brand)]/20 group-hover:scale-110 transition-transform"
               />
-              <Sparkles className="w-3 h-3 text-[var(--color-brand)] absolute -top-1 -right-1 animate-pulse" />
+               
             </div>
             <span className="text-sm text-muted-foreground flex items-center gap-1">
               Small steps, big changes
@@ -29,11 +29,9 @@ export function AppFooter() {
           {/* Copyright - enhanced with heart */}
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
             <span>© {new Date().getFullYear()} HobHob</span>
-            <span className="text-pink-500">
-              <Heart className="w-3 h-3 fill-pink-500 animate-pulse-slow" />
-            </span>
+            <span className="text-pink-500">• </span>
             <span>Made with</span>
-            <Sparkles className="w-3 h-3 text-[var(--color-brand)] animate-pulse" />
+            <Heart className="w-3 h-3 fill-pink-500 animate-pulse-slow" />
           </div>
         </div>
       </div>

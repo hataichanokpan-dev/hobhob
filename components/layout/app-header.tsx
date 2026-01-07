@@ -35,7 +35,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                   alt="HobHob"
                   className="relative w-12 h-12 rounded-lg shadow-md shadow-[var(--color-brand)]/20 group-hover:scale-105 transition-transform"
                 />
-                <Sparkles className="w-4 h-4 text-[var(--color-brand)] absolute -top-1 -right-1 animate-pulse" />
+                
               </div>
             </Link>
 
@@ -49,7 +49,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
               </h1>
               <p className="text-[10px] text-muted-foreground -mt-0.5 leading-tight flex items-center gap-0.5">
                 {t("app.tagline")}
-                <Sparkles className="w-2 h-2 text-[var(--color-brand)]" />
+                 
               </p>
             </div>
           </div>
@@ -74,7 +74,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand)]/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                 <Menu className="w-5 h-5 relative z-10" />
-                <Sparkles className="w-3 h-3 text-[var(--color-brand)] absolute -top-0.5 -right-0.5 animate-pulse-slow" />
+                 
               </button>
             )}
           </div>

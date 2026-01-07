@@ -114,7 +114,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
   const isActive = (path: string) => pathname === path;
 
   const languages = [
-    { code: "en" as const, name: "English", nativeName: "English", flag: "🇬🇧" },
+    { code: "en" as const, name: "English", nativeName: "English", flag: "EN" },
     { code: "th" as const, name: "Thai", nativeName: "ไทย", flag: "🇹🇭" },
   ];
 
@@ -149,12 +149,12 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   alt="HobHob"
                   className="w-12 h-12 rounded-lg"
                 />
-                <Sparkles className="w-4 h-4 text-[var(--color-brand)] absolute -top-1 -right-1 animate-pulse" />
+                 
               </div>
               <div>
                 <h2 className="font-semibold flex items-center gap-1">
                   {t("nav.menu")}
-                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                   
                 </h2>
                 <p className="text-xs text-muted-foreground">{t("nav.navigateYourApp")}</p>
               </div>
@@ -187,14 +187,12 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                       {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-[#33CC33] to-[#22BB22] rounded-full flex items-center justify-center border-2 border-[var(--color-card)] shadow-lg">
-                    <Sparkles className="w-3 h-3 text-white" />
-                  </div>
+                 
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate flex items-center gap-1">
                     {userProfile.displayName}
-                    <Sparkles className="w-3 h-3 text-yellow-400" />
+                     
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                 </div>
@@ -223,7 +221,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                       {active && (
                         <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand)]/20 to-transparent animate-pulse" />
                       )}
-                      <span className="text-lg relative z-10">{item.emoji}</span>
+                      {/* <span className="text-lg relative z-10">{item.emoji}</span> */}
                       <Icon className={`w-5 h-5 relative z-10 ${active ? "text-white" : "text-[var(--color-brand)]"}`} />
                       <div className="flex-1 text-left relative z-10">
                         <p className={`font-semibold ${active ? "text-white" : ""}`}>{t(item.labelKey)}</p>
@@ -231,7 +229,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                           {t(item.descriptionKey)}
                         </p>
                       </div>
-                      {active && <Sparkles className="w-4 h-4 text-yellow-400 absolute right-2 animate-spin-slow" />}
+                      
                     </button>
                   </li>
                 );
@@ -316,7 +314,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                             setLanguage(lang.code);
                             setIsLangDropdownOpen(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                          className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
                             language === lang.code
                               ? "bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand)]/80 text-white"
                               : "hover:bg-[var(--color-muted)]"
