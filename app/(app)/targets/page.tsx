@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { listenToTargets, listenToTargetInstances } from "@/lib/db";
@@ -38,6 +38,8 @@ export default function TargetsPage() {
     instance: TargetInstance;
   } | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Track when we just completed a target to prevent redundant refresh
+  const lastCompletionTime = useRef<number>(0);
 
   const timezone = userProfile?.timezone || "UTC";
 
@@ -69,6 +71,13 @@ export default function TargetsPage() {
   useEffect(() => {
     if (!user || targets.length === 0) return;
 
+    // Skip refresh if we just completed a target (within last 2 seconds)
+    // This prevents redundant slow calls after completion
+    const timeSinceCompletion = Date.now() - lastCompletionTime.current;
+    if (timeSinceCompletion < 2000) {
+      return;
+    }
+
     const refreshInstances = async () => {
       setIsRefreshing(true);
       try {
@@ -97,8 +106,11 @@ export default function TargetsPage() {
     if (!user) return;
 
     try {
+      // Mark completion time to prevent redundant refresh
+      lastCompletionTime.current = Date.now();
+
       await completeTargetInstance(user.uid, instanceId);
-      // Remove the completed instance from activeInstances
+      // Remove the completed instance from activeInstances (immediate UI update)
       setActiveInstances(activeInstances.filter((i) => i.id !== instanceId));
     } catch (error) {
       console.error("Failed to complete target:", error);

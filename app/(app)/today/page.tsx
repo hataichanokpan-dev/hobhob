@@ -71,6 +71,8 @@ export default function TodayPage() {
 
   // Ref for targets section
   const targetsSectionRef = useRef<HTMLDivElement>(null);
+  // Track when we just completed a target to prevent redundant refresh
+  const lastCompletionTime = useRef<number>(0);
 
   // Get user's timezone or default to UTC
   const timezone = userProfile?.timezone || "UTC";
@@ -148,6 +150,13 @@ export default function TodayPage() {
   // Generate active instances when targets or instances change
   useEffect(() => {
     if (!user || targets.length === 0) return;
+
+    // Skip refresh if we just completed a target (within last 2 seconds)
+    // This prevents redundant slow calls after completion
+    const timeSinceCompletion = Date.now() - lastCompletionTime.current;
+    if (timeSinceCompletion < 2000) {
+      return;
+    }
 
     const refreshInstances = async () => {
       try {
@@ -251,8 +260,11 @@ export default function TodayPage() {
     if (!user) return;
 
     try {
+      // Mark completion time to prevent redundant refresh
+      lastCompletionTime.current = Date.now();
+
       await completeTargetInstance(user.uid, instanceId);
-      // Remove the completed instance from activeInstances
+      // Remove the completed instance from activeInstances (immediate UI update)
       setActiveInstances(activeInstances.filter((i) => i.id !== instanceId));
     } catch (error) {
       console.error("Failed to complete target:", error);
