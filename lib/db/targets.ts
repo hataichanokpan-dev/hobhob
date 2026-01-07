@@ -6,7 +6,9 @@ import {
   updateTargetInstance,
   listenToTargets,
   listenToTargetInstances,
+  getTargetInstanceRef,
 } from "./index";
+import { remove } from "firebase/database";
 import { getCurrentWindowKey, getCurrentWindowBounds } from "@/lib/utils/date";
 import type { Target, TargetInstance, CreateTargetInput, UpdateTargetInput } from "@/types";
 
@@ -147,6 +149,7 @@ export async function getActiveTargetInstances(
   const activeInstances: TargetInstance[] = [];
   const instancesToCreate: TargetInstance[] = [];
   const instancesToExpire: string[] = [];
+  const duplicateIdsToRemove: string[] = [];
 
   // Group instances by targetId
   const instancesByTarget = new Map<string, TargetInstance[]>();
@@ -163,41 +166,82 @@ export async function getActiveTargetInstances(
     const bounds = getCurrentWindowBounds(target.windowType, timezone, target.customDurationDays);
     const targetInstances = instancesByTarget.get(target.id) || [];
 
-    // Find instance for current window
-    let currentInstance = targetInstances.find(
-      (i) => i.windowKey === currentWindowKey
+    // Group instances by windowKey for this target
+    const instancesByWindow = new Map<string, TargetInstance[]>();
+    for (const instance of targetInstances) {
+      const list = instancesByWindow.get(instance.windowKey) || [];
+      list.push(instance);
+      instancesByWindow.set(instance.windowKey, list);
+    }
+
+    // Get instances for current window
+    const windowInstances = instancesByWindow.get(currentWindowKey) || [];
+
+    // Clean up duplicates: keep only the first instance (oldest createdAt), mark others for removal
+    if (windowInstances.length > 1) {
+      // Sort by createdAt (oldest first)
+      windowInstances.sort((a, b) => a.createdAt - b.createdAt);
+      // Keep first one, mark rest for removal
+      for (let i = 1; i < windowInstances.length; i++) {
+        duplicateIdsToRemove.push(windowInstances[i].id);
+      }
+    }
+
+    // Find completed instance for current window (from remaining after dedup)
+    const completedInstanceInWindow = windowInstances.find(
+      (i) => i.status === "COMPLETED" && !duplicateIdsToRemove.includes(i.id)
     );
 
-    // Create instance if it doesn't exist
-    if (!currentInstance) {
-      const hasCompletedInstance = targetInstances.some(
-        (i) => i.status === "COMPLETED"
-      );
+    // Find active instance for current window (from remaining after dedup)
+    const activeInstanceInWindow = windowInstances.find(
+      (i) => i.status === "ACTIVE" && !duplicateIdsToRemove.includes(i.id)
+    );
 
-      // For one-time targets, only create if no completed instance exists
-      if (target.isRecurring || !hasCompletedInstance) {
-        const newInstance: TargetInstance = {
-          id: generateId(),
-          targetId: target.id,
-          windowKey: currentWindowKey,
-          windowStart: bounds.start,
-          windowEnd: bounds.end,
-          status: "ACTIVE",
-          createdAt: now,
-        };
-        instancesToCreate.push(newInstance);
-        currentInstance = newInstance;
-      }
+    // If there's a completed instance in this window, don't create a new one
+    if (completedInstanceInWindow) {
+      // Completed instance exists, don't add to activeInstances
+      continue;
     }
 
-    // Check if instance should be expired
-    if (currentInstance && currentInstance.status === "ACTIVE") {
-      if (now > currentInstance.windowEnd) {
-        instancesToExpire.push(currentInstance.id);
+    // If there's an active instance, use it
+    if (activeInstanceInWindow) {
+      // Check if instance should be expired
+      if (now > activeInstanceInWindow.windowEnd) {
+        instancesToExpire.push(activeInstanceInWindow.id);
       } else {
-        activeInstances.push(currentInstance);
+        activeInstances.push(activeInstanceInWindow);
       }
+      continue;
     }
+
+    // No instance exists for this window, create one
+    // For one-time targets, check if ANY completed instance exists (across all windows)
+    const hasCompletedInstanceAnywhere = targetInstances.some(
+      (i) => i.status === "COMPLETED" && !duplicateIdsToRemove.includes(i.id)
+    );
+
+    // For recurring targets: create new instance for this window
+    // For one-time targets: only create if no completed instance exists anywhere
+    if (target.isRecurring || !hasCompletedInstanceAnywhere) {
+      const newInstance: TargetInstance = {
+        id: generateId(),
+        targetId: target.id,
+        windowKey: currentWindowKey,
+        windowStart: bounds.start,
+        windowEnd: bounds.end,
+        status: "ACTIVE",
+        createdAt: now,
+      };
+      instancesToCreate.push(newInstance);
+      activeInstances.push(newInstance);
+    }
+  }
+
+  // Remove duplicate instances (delete them from database)
+  if (duplicateIdsToRemove.length > 0) {
+    await Promise.all(
+      duplicateIdsToRemove.map((id) => remove(getTargetInstanceRef(uid, id)))
+    );
   }
 
   // Create new instances in parallel
