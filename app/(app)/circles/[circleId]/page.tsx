@@ -151,7 +151,20 @@ export default function CircleDetailPage() {
 
   const getMemberEncouragements = (memberUid: string) => {
     if (!encouragements) return [];
-    return getTodaysEncouragements(encouragements, memberUid);
+    const allEncouragements = getTodaysEncouragements(encouragements, memberUid);
+
+    // Group by emoji and count duplicates
+    const emojiCounts = new Map<string, number>();
+    for (const enc of allEncouragements) {
+      const count = emojiCounts.get(enc.emoji) || 0;
+      emojiCounts.set(enc.emoji, count + 1);
+    }
+
+    // Convert back to array with count property
+    return Array.from(emojiCounts.entries()).map(([emoji, count]) => ({
+      emoji,
+      count,
+    }));
   };
 
   const getEmojisSentByCurrentUser = (toUserId: string) => {
@@ -499,10 +512,15 @@ export default function CircleDetailPage() {
                             <div className="flex items-center gap-1 mt-1.5">
                               {memberEncouragements.map((enc: any) => (
                                 <span
-                                  key={enc.id}
-                                  className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-[var(--color-brand)]/20 to-[var(--color-brand)]/10 text-xs animate-scale-in"
+                                  key={enc.emoji}
+                                  className={`inline-flex items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-brand)]/20 to-[var(--color-brand)]/10 text-xs animate-scale-in ${
+                                    enc.count > 1 ? "px-1.5 w-auto min-w-6 h-6" : "w-6 h-6"
+                                  }`}
                                 >
-                                  {enc.emoji}
+                                  <span>{enc.emoji}</span>
+                                  {enc.count > 1 && (
+                                    <span className="ml-0.5 font-semibold">{enc.count}</span>
+                                  )}
                                 </span>
                               ))}
                             </div>
