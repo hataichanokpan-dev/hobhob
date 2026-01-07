@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target, User } from "lucide-react";
+import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target, User, Sparkles, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/use-user-store";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -58,56 +58,64 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
       labelKey: "nav.today",
       path: "/today",
       descriptionKey: "navDescriptions.today",
+      emoji: "📅",
     },
     {
       icon: List,
       labelKey: "nav.habits",
       path: "/habits",
       descriptionKey: "navDescriptions.habits",
+      emoji: "✅",
     },
     {
       icon: Target,
       labelKey: "nav.targets",
       path: "/targets",
       descriptionKey: "navDescriptions.targets",
+      emoji: "🎯",
     },
     {
       icon: Users,
       labelKey: "nav.circles",
       path: "/circles",
       descriptionKey: "navDescriptions.circles",
+      emoji: "👥",
     },
     {
       icon: Clock,
       labelKey: "nav.history",
       path: "/history",
       descriptionKey: "navDescriptions.history",
+      emoji: "📜",
     },
     {
       icon: Trophy,
       labelKey: "nav.leaderboard",
       path: "/leaderboard",
       descriptionKey: "navDescriptions.leaderboard",
+      emoji: "🏆",
     },
     {
       icon: BarChart3,
       labelKey: "nav.stats",
       path: "/stats",
       descriptionKey: "navDescriptions.stats",
+      emoji: "📊",
     },
     {
       icon: Settings,
       labelKey: "nav.settings",
       path: "/settings",
       descriptionKey: "navDescriptions.settings",
+      emoji: "⚙️",
     },
   ];
 
   const isActive = (path: string) => pathname === path;
 
   const languages = [
-    { code: "en" as const, name: "English", nativeName: "English" },
-    { code: "th" as const, name: "Thai", nativeName: "ไทย" },
+    { code: "en" as const, name: "English", nativeName: "English", flag: "🇬🇧" },
+    { code: "th" as const, name: "Thai", nativeName: "ไทย", flag: "🇹🇭" },
   ];
 
   const currentLanguage = languages.find((lang) => lang.code === language);
@@ -130,21 +138,30 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
-            <div className="flex items-center gap-2">
-              <img
-                src="/icons/hobhob_v2.png"
-                alt="HobHob"
-                className="w-12 h-12 rounded-lg"
-              />
+          <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] relative overflow-hidden">
+            {/* Decorative gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand)]/10 via-purple-500/5 to-transparent pointer-events-none" />
+
+            <div className="flex items-center gap-2 relative">
+              <div className="relative">
+                <img
+                  src="/icons/hobhob_v2.png"
+                  alt="HobHob"
+                  className="w-12 h-12 rounded-lg"
+                />
+                <Sparkles className="w-4 h-4 text-[var(--color-brand)] absolute -top-1 -right-1 animate-pulse" />
+              </div>
               <div>
-                <h2 className="font-semibold">{t("nav.menu")}</h2>
+                <h2 className="font-semibold flex items-center gap-1">
+                  {t("nav.menu")}
+                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                </h2>
                 <p className="text-xs text-muted-foreground">{t("nav.navigateYourApp")}</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="icon-btn"
+              className="icon-btn relative"
               aria-label="Close menu"
             >
               <X className="w-5 h-5" />
@@ -155,25 +172,33 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
           {user && userProfile && (
             <button
               onClick={() => handleNavigate("/profile")}
-              className="p-4 border-b border-[var(--color-border)] w-full text-left hover:bg-[var(--color-muted)]/50 transition-colors"
+              className="p-4 border-b border-[var(--color-border)] w-full text-left hover:bg-[var(--color-muted)]/50 transition-all group"
             >
               <div className="flex items-center gap-3">
-                {userProfile.photoURL ? (
-                  <img
-                    src={userProfile.photoURL}
-                    alt={userProfile.displayName || "User"}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-border)]"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#ff9533] flex items-center justify-center text-white font-semibold">
-                    {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
+                <div className="relative">
+                  {userProfile.photoURL ? (
+                    <img
+                      src={userProfile.photoURL}
+                      alt={userProfile.displayName || "User"}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-brand)] shadow-lg shadow-[var(--color-brand)]/20 group-hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-brand)] via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-[var(--color-brand)]/30 border-2 border-white/20 group-hover:scale-105 transition-transform">
+                      {userProfile.displayName?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-[#33CC33] to-[#22BB22] rounded-full flex items-center justify-center border-2 border-[var(--color-card)] shadow-lg">
+                    <Sparkles className="w-3 h-3 text-white" />
                   </div>
-                )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{userProfile.displayName}</p>
+                  <p className="font-semibold truncate flex items-center gap-1">
+                    {userProfile.displayName}
+                    <Sparkles className="w-3 h-3 text-yellow-400" />
+                  </p>
                   <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                 </div>
-                <User className="w-5 h-5 text-muted-foreground" />
+                <User className="w-5 h-5 text-[var(--color-brand)] group-hover:scale-110 transition-transform" />
               </div>
             </button>
           )}
@@ -189,19 +214,24 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   <li key={item.path}>
                     <button
                       onClick={() => handleNavigate(item.path)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative overflow-hidden group ${
                         active
-                          ? "bg-[var(--color-brand)] text-white"
-                          : "hover:bg-[var(--color-muted)]"
+                          ? "bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand)]/80 text-white shadow-lg shadow-[var(--color-brand)]/20"
+                          : "hover:bg-[var(--color-muted)] hover:scale-[1.02]"
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${active ? "text-white" : "text-[var(--color-brand)]"}`} />
-                      <div className="flex-1 text-left">
-                        <p className={`font-medium ${active ? "text-white" : ""}`}>{t(item.labelKey)}</p>
-                        <p className={`text-xs ${active ? "text-white/70" : "text-muted-foreground"}`}>
+                      {active && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand)]/20 to-transparent animate-pulse" />
+                      )}
+                      <span className="text-lg relative z-10">{item.emoji}</span>
+                      <Icon className={`w-5 h-5 relative z-10 ${active ? "text-white" : "text-[var(--color-brand)]"}`} />
+                      <div className="flex-1 text-left relative z-10">
+                        <p className={`font-semibold ${active ? "text-white" : ""}`}>{t(item.labelKey)}</p>
+                        <p className={`text-xs ${active ? "text-white/80" : "text-muted-foreground"}`}>
                           {t(item.descriptionKey)}
                         </p>
                       </div>
+                      {active && <Sparkles className="w-4 h-4 text-yellow-400 absolute right-2 animate-spin-slow" />}
                     </button>
                   </li>
                 );
@@ -210,57 +240,62 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
 
             {/* Theme Switcher */}
             <div className="mt-6">
-              <p className="px-4 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="px-4 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <Sun className="w-3 h-3" />
                 {t("theme.theme")}
               </p>
               <div className="flex gap-2 px-4">
                 <button
                   onClick={() => setTheme("light")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all relative overflow-hidden group ${
                     theme === "light"
-                      ? "bg-[var(--color-foreground)] text-[var(--color-background)]"
-                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80"
+                      ? "bg-gradient-to-br from-yellow-400 to-orange-400 text-white shadow-lg"
+                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 hover:scale-105"
                   }`}
                 >
-                  <Sun className="w-4 h-4" />
-                  <span className="text-sm">{t("theme.light")}</span>
+                  {theme === "light" && <div className="absolute inset-0 bg-white/20 animate-pulse" />}
+                  <Sun className={`w-4 h-4 relative z-10 ${theme === "light" ? "text-white" : ""}`} />
+                  <span className="text-sm relative z-10">{t("theme.light")}</span>
                 </button>
                 <button
                   onClick={() => setTheme("dark")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all relative overflow-hidden group ${
                     theme === "dark"
-                      ? "bg-[var(--color-foreground)] text-[var(--color-background)]"
-                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80"
+                      ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 hover:scale-105"
                   }`}
                 >
-                  <Moon className="w-4 h-4" />
-                  <span className="text-sm">{t("theme.dark")}</span>
+                  {theme === "dark" && <div className="absolute inset-0 bg-white/20 animate-pulse" />}
+                  <Moon className={`w-4 h-4 relative z-10 ${theme === "dark" ? "text-white" : ""}`} />
+                  <span className="text-sm relative z-10">{t("theme.dark")}</span>
                 </button>
                 <button
                   onClick={() => setTheme("system")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all relative overflow-hidden group ${
                     theme === "system"
-                      ? "bg-[var(--color-foreground)] text-[var(--color-background)]"
-                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80"
+                      ? "bg-gradient-to-br from-gray-500 to-gray-600 text-white shadow-lg"
+                      : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 hover:scale-105"
                   }`}
                 >
-                  <Monitor className="w-4 h-4" />
-                  <span className="text-sm">{t("theme.auto")}</span>
+                  {theme === "system" && <div className="absolute inset-0 bg-white/20 animate-pulse" />}
+                  <Monitor className={`w-4 h-4 relative z-10 ${theme === "system" ? "text-white" : ""}`} />
+                  <span className="text-sm relative z-10">{t("theme.auto")}</span>
                 </button>
               </div>
             </div>
 
             {/* Language Selector */}
             <div className="mt-6">
-              <p className="px-4 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <Globe className="w-3 h-3 inline mr-1" />
+              <p className="px-4 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <Globe className="w-3 h-3 text-[var(--color-brand)] animate-pulse" />
                 {t("language.title")}
               </p>
               <div className="px-4 relative">
                 <button
                   onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 transition-all"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 transition-all hover:scale-[1.02] border border-transparent hover:border-[var(--color-brand)]/30"
                 >
+                  <span className="text-lg mr-2">{currentLanguage?.flag}</span>
                   <span className="text-sm font-medium">{currentLanguage?.nativeName}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${isLangDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
@@ -272,7 +307,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute z-10 w-full mt-2 surface shadow-xl overflow-hidden"
+                      className="absolute z-10 w-full mt-2 surface shadow-xl overflow-hidden rounded-xl"
                     >
                       {languages.map((lang) => (
                         <button
@@ -283,13 +318,15 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                             language === lang.code
-                              ? "bg-[var(--color-brand)] text-white"
+                              ? "bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand)]/80 text-white"
                               : "hover:bg-[var(--color-muted)]"
                           }`}
                         >
+                          <span className="text-lg">{lang.flag}</span>
                           <Languages className="w-4 h-4" />
                           <div>
-                            <p className="font-medium">{lang.nativeName}</p>                          
+                            <p className="font-medium">{lang.nativeName}</p>
+                            <p className="text-xs text-muted-foreground">{lang.name}</p>
                           </div>
                         </button>
                       ))}
@@ -304,7 +341,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
           <div className="p-4 border-t border-[var(--color-border)]">
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all hover:scale-[1.02]"
             >
               <LogOut className="w-5 h-5" />
               <span className="font-medium">{t("nav.signOut")}</span>
