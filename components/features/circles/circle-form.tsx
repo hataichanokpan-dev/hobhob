@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Palette } from "lucide-react";
+import { Loader2, Palette, Target as TargetIcon } from "lucide-react";
 import { createNewCircle } from "@/lib/db/circles";
 import { useUserStore } from "@/store/use-user-store";
 import { useRouter } from "next/navigation";
+import type { WindowType } from "@/types";
 
 const HABIT_ICONS = [
   "🏃", "📚", "💪", "🧘", "💧", "🍎", "😴", "🎯",
@@ -42,6 +43,15 @@ const WEEK_DAYS = [
   { value: 6, label: "Sun", short: "Su" },
 ];
 
+const WINDOW_TYPES: { value: WindowType; label: string; description: string }[] = [
+  { value: "WEEK", label: "Week", description: "7 days" },
+  { value: "MONTH", label: "Month", description: "30 days" },
+  { value: "YEAR", label: "Year", description: "365 days" },
+  { value: "2_WEEKS", label: "2 Weeks", description: "14 days" },
+  { value: "2_MONTHS", label: "2 Months", description: "60 days" },
+  { value: "6_MONTHS", label: "6 Months", description: "180 days" },
+];
+
 interface CreateCircleFormProps {
   onSuccess?: (circleId: string, inviteCode?: string) => void;
   onCancel?: () => void;
@@ -53,8 +63,9 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state - focused on habit first
-  const [step, setStep] = useState<"habit" | "circle">("habit");
+  // Form state - now includes mode selection
+  const [step, setStep] = useState<"mode" | "habit" | "target" | "circle">("mode");
+  const [mode, setMode] = useState<"habit" | "target">("habit");
 
   // Habit fields
   const [habitName, setHabitName] = useState("");
@@ -68,6 +79,19 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
   const [habitFrequency, setHabitFrequency] = useState<"daily" | "weekly" | "monthly">("daily");
   const [habitTargetDays, setHabitTargetDays] = useState<number[]>([]);
 
+  // Target fields (NEW)
+  const [targetTitle, setTargetTitle] = useState("");
+  const [targetDescription, setTargetDescription] = useState("");
+  const [targetSuccessCriteria, setTargetSuccessCriteria] = useState("");
+  const [targetIcon, setTargetIcon] = useState("🎯");
+  const [customTargetIcon, setCustomTargetIcon] = useState("");
+  const [showCustomTargetIcon, setShowCustomTargetIcon] = useState(false);
+  const [targetColor, setTargetColor] = useState(HABIT_COLORS[0].value);
+  const [customTargetColor, setCustomTargetColor] = useState(HABIT_COLORS[0].hex);
+  const [showCustomTargetColor, setShowCustomTargetColor] = useState(false);
+  const [targetWindowType, setTargetWindowType] = useState<WindowType>("WEEK");
+  const [targetIsRecurring, setTargetIsRecurring] = useState(false);
+
   // Circle fields
   const [circleName, setCircleName] = useState("");
   const [circleDescription, setCircleDescription] = useState("");
@@ -79,25 +103,52 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !habitName.trim()) return;
+    if (!user) return;
+
+    // Validate based on mode
+    if (mode === "habit" && !habitName.trim()) return;
+    if (mode === "target" && !targetTitle.trim()) return;
 
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const result = await createNewCircle(user.uid, {
-        circleName: circleName.trim() || habitName.trim(),
-        circleDescription: circleDescription.trim() || `Building "${habitName.trim()}" together.`,
+      const commonData = {
+        circleName: circleName.trim() || (mode === "habit" ? habitName.trim() : targetTitle.trim()),
+        circleDescription: circleDescription.trim() || (mode === "habit"
+          ? `Building "${habitName.trim()}" together.`
+          : `Achieving "${targetTitle.trim()}" together.`),
         circleIcon,
         circleColor,
         type,
-        habitName: habitName.trim(),
-        habitDescription: habitDescription.trim() || undefined,
-        habitIcon,
-        habitColor,
-        habitFrequency,
-        habitTargetDays: habitFrequency !== "daily" ? habitTargetDays : undefined,
-      });
+        mode,
+      };
+
+      let result;
+
+      if (mode === "habit") {
+        result = await createNewCircle(user.uid, {
+          ...commonData,
+          habitName: habitName.trim(),
+          habitDescription: habitDescription.trim() || undefined,
+          habitIcon,
+          habitColor,
+          habitFrequency,
+          habitTargetDays: habitFrequency !== "daily" ? habitTargetDays : undefined,
+        });
+      } else {
+        // Target mode
+        result = await createNewCircle(user.uid, {
+          ...commonData,
+          targetTitle: targetTitle.trim(),
+          targetDescription: targetDescription.trim() || undefined,
+          targetSuccessCriteria: targetSuccessCriteria.trim() || undefined,
+          targetIcon,
+          targetColor,
+          targetWindowType,
+          targetIsRecurring,
+        });
+      }
 
       if (result.success) {
         if (onSuccess) {
@@ -122,8 +173,8 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
     );
   };
 
-  const isStep1Valid = habitName.trim();
-  const isStep2Valid = habitName.trim();
+  const isStep1Valid = mode === "habit" ? habitName.trim() : targetTitle.trim();
+  const isStep2Valid = mode === "habit" ? habitName.trim() : targetTitle.trim();
 
   return (
     <div className="min-h-screen pb-24">
@@ -145,16 +196,79 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
       {/* Step Indicator */}
       <div className="px-4 pb-4">
         <div className="flex items-center gap-2">
-          <div className={`flex-1 h-1 rounded-full ${step === "habit" ? "bg-[var(--color-brand)]" : "bg-[var(--color-muted)]"}`} />
+          <div className={`flex-1 h-1 rounded-full ${step === "mode" ? "bg-[var(--color-brand)]" : "bg-[var(--color-muted)]"}`} />
+          <div className={`flex-1 h-1 rounded-full ${step === "habit" || step === "target" ? "bg-[var(--color-brand)]" : "bg-[var(--color-muted)]"}`} />
           <div className={`flex-1 h-1 rounded-full ${step === "circle" ? "bg-[var(--color-brand)]" : "bg-[var(--color-muted)]"}`} />
         </div>
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
-          <span>Habit</span>
+          <span>Mode</span>
+          <span>{mode === "habit" ? "Habit" : "Target"}</span>
           <span>Circle</span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="px-4 space-y-6">
+        {/* Step 0: Mode Selection */}
+        {step === "mode" && (
+          <div className="space-y-6 pt-4">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold mb-2">Choose Circle Mode</h2>
+              <p className="text-sm text-muted-foreground">Select what type of goal your circle will focus on</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Habit Mode Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("habit");
+                  setStep("habit");
+                }}
+                className={`p-6 rounded-2xl border-2 transition-all text-left ${
+                  mode === "habit"
+                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10"
+                    : "border-[var(--color-border)] hover:border-[var(--color-brand)]/50"
+                }`}
+              >
+                <div className="text-4xl mb-3">✅</div>
+                <div className="font-semibold mb-1">Habit</div>
+                <div className="text-xs text-muted-foreground">Daily check-ins</div>
+                <div className="mt-3 text-xs text-muted-foreground">
+                  Build consistent daily habits together with your circle
+                </div>
+              </button>
+
+              {/* Target Mode Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("target");
+                  setStep("target");
+                }}
+                className={`p-6 rounded-2xl border-2 transition-all text-left ${
+                  mode === "target"
+                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10"
+                    : "border-[var(--color-border)] hover:border-[var(--color-brand)]/50"
+                }`}
+              >
+                <div className="text-4xl mb-3">🎯</div>
+                <div className="font-semibold mb-1">Target</div>
+                <div className="text-xs text-muted-foreground">Weekly/Monthly goals</div>
+                <div className="mt-3 text-xs text-muted-foreground">
+                  Achieve time-based goals together as a group
+                </div>
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--color-muted)]">
+              <p className="text-xs text-muted-foreground text-center">
+                <span className="font-medium">Habit:</span> Track daily consistency •{" "}
+                <span className="font-medium">Target:</span> Complete goals within time windows
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Habit Setup */}
         {step === "habit" && (
           <div className="space-y-5">
@@ -434,31 +548,282 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
           </div>
         )}
 
+        {/* Step 1b: Target Setup */}
+        {step === "target" && (
+          <div className="space-y-5">
+            {/* Target Title */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Target title</label>
+              <input
+                type="text"
+                value={targetTitle}
+                onChange={(e) => setTargetTitle(e.target.value)}
+                placeholder="e.g., Read 4 Books"
+                className="w-full input"
+                maxLength={50}
+                required
+              />
+            </div>
+
+            {/* Target Description */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description <span className="text-muted-foreground">(optional)</span></label>
+              <textarea
+                value={targetDescription}
+                onChange={(e) => setTargetDescription(e.target.value)}
+                placeholder="Describe your goal..."
+                className="w-full input resize-none"
+                rows={2}
+                maxLength={600}
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {targetDescription.length}/600
+              </p>
+            </div>
+
+            {/* Target Icon */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Target icon</label>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomTargetIcon(!showCustomTargetIcon)}
+                  className="text-xs text-[var(--color-brand)] hover:underline"
+                >
+                  {showCustomTargetIcon ? "Hide" : "Custom"}
+                </button>
+              </div>
+
+              <div className={`grid grid-cols-8 gap-2 pt-2 ${showCustomTargetIcon ? "hidden" : ""}`}>
+                {HABIT_ICONS.map((icon) => (
+                  <button
+                    key={icon}
+                    type="button"
+                    onClick={() => setTargetIcon(icon)}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all ${
+                      targetIcon === icon
+                        ? "bg-[var(--color-brand)] text-white scale-110"
+                        : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80"
+                    }`}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+
+              {showCustomTargetIcon && (
+                <div className="space-y-2 pt-2">
+                  <input
+                    type="text"
+                    value={customTargetIcon}
+                    onChange={(e) => setCustomTargetIcon(e.target.value)}
+                    placeholder="Type or paste an emoji... ✨"
+                    className="w-full input text-center text-2xl"
+                    maxLength={2}
+                    onBlur={() => {
+                      if (customTargetIcon) {
+                        setTargetIcon(customTargetIcon);
+                      }
+                    }}
+                  />
+                  {customTargetIcon && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTargetIcon(customTargetIcon);
+                        setShowCustomTargetIcon(false);
+                      }}
+                      className="w-full btn-primary text-sm"
+                    >
+                      Use "{customTargetIcon}"
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Target Color */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Target color</label>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomTargetColor(!showCustomTargetColor)}
+                  className="text-xs text-[var(--color-brand)] hover:underline"
+                >
+                  {showCustomTargetColor ? "Hide" : "Custom"}
+                </button>
+              </div>
+
+              <div className={`flex gap-2 pt-2 ${showCustomTargetColor ? "hidden" : ""}`}>
+                {HABIT_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setTargetColor(color.value)}
+                    className={`w-10 h-10 rounded-lg ${color.bg} transition-all ${
+                      targetColor === color.value
+                        ? "ring-2 ring-[var(--color-brand)] ring-offset-2 scale-110"
+                        : "opacity-60 hover:opacity-100"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {showCustomTargetColor && (
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <input
+                        type="color"
+                        value={customTargetColor}
+                        onChange={(e) => setCustomTargetColor(e.target.value)}
+                        className="w-12 h-12 rounded-lg cursor-pointer border-0"
+                      />
+                      <Palette className="absolute -right-1 -top-1 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <input
+                      type="text"
+                      value={customTargetColor}
+                      onChange={(e) => setCustomTargetColor(e.target.value)}
+                      placeholder="#FF6600"
+                      className="flex-1 input font-mono text-sm uppercase"
+                      maxLength={7}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTargetColor(customTargetColor);
+                        setShowCustomTargetColor(false);
+                      }}
+                      className="btn-primary text-sm px-4"
+                    >
+                      Use
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Pick any color or enter a hex code (e.g., #FF6600)
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Window Type */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Time window</label>
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                {WINDOW_TYPES.map((window) => (
+                  <button
+                    key={window.value}
+                    type="button"
+                    onClick={() => setTargetWindowType(window.value)}
+                    className={`p-3 rounded-xl text-center transition-all ${
+                      targetWindowType === window.value
+                        ? "bg-[var(--color-foreground)] text-[var(--color-background)]"
+                        : "bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80"
+                    }`}
+                  >
+                    <div className="text-sm font-medium">{window.label}</div>
+                    <div className="text-xs opacity-70">{window.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Recurring Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--color-muted)]">
+              <div>
+                <div className="text-sm font-medium">Recurring target</div>
+                <div className="text-xs text-muted-foreground">This target repeats each time window</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTargetIsRecurring(!targetIsRecurring)}
+                className={`w-12 h-7 rounded-full transition-all ${
+                  targetIsRecurring ? "bg-[var(--color-brand)]" : "bg-[var(--color-border)]"
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    targetIsRecurring ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Success Criteria */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Success criteria <span className="text-muted-foreground">(optional)</span></label>
+              <input
+                type="text"
+                value={targetSuccessCriteria}
+                onChange={(e) => setTargetSuccessCriteria(e.target.value)}
+                placeholder="e.g., Complete 100 pages"
+                className="w-full input"
+                maxLength={100}
+              />
+              <p className="text-xs text-muted-foreground">
+                Define what counts as completing this target
+              </p>
+            </div>
+
+            {/* Continue Button */}
+            <button
+              type="button"
+              onClick={() => setStep("circle")}
+              disabled={!isStep1Valid}
+              className="w-full btn-primary"
+            >
+              Continue
+            </button>
+          </div>
+        )}
+
         {/* Step 2: Circle Settings */}
         {step === "circle" && (
           <div className="space-y-6">
-            {/* Habit Summary */}
+            {/* Habit/Target Summary */}
             <div className="surface p-4">
-              <div className="text-xs text-muted-foreground mb-2">Your habit</div>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                  style={{ backgroundColor: habitColor.startsWith("#") ? habitColor : HABIT_COLORS.find(c => c.value === habitColor)?.hex + "20" }}
-                >
-                  {habitIcon}
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium">{habitName}</div>
-                  {habitDescription && (
-                    <div className="text-xs text-muted-foreground line-clamp-1">{habitDescription}</div>
-                  )}
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {habitFrequency === "daily" ? "Every day" :
-                     habitFrequency === "weekly" ? `${habitTargetDays.length} day${habitTargetDays.length > 1 ? "s" : ""}/week` :
-                     `${habitTargetDays.length} date${habitTargetDays.length > 1 ? "s" : ""}/month`}
+              <div className="text-xs text-muted-foreground mb-2">Your {mode}</div>
+              {mode === "habit" ? (
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                    style={{ backgroundColor: habitColor.startsWith("#") ? habitColor : HABIT_COLORS.find(c => c.value === habitColor)?.hex + "20" }}
+                  >
+                    {habitIcon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{habitName}</div>
+                    {habitDescription && (
+                      <div className="text-xs text-muted-foreground line-clamp-1">{habitDescription}</div>
+                    )}
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {habitFrequency === "daily" ? "Every day" :
+                       habitFrequency === "weekly" ? `${habitTargetDays.length} day${habitTargetDays.length > 1 ? "s" : ""}/week` :
+                       `${habitTargetDays.length} date${habitTargetDays.length > 1 ? "s" : ""}/month`}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                    style={{ backgroundColor: targetColor.startsWith("#") ? targetColor : HABIT_COLORS.find(c => c.value === targetColor)?.hex + "20" }}
+                  >
+                    {targetIcon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{targetTitle}</div>
+                    {targetDescription && (
+                      <div className="text-xs text-muted-foreground line-clamp-1">{targetDescription}</div>
+                    )}
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {WINDOW_TYPES.find(w => w.value === targetWindowType)?.label} {targetIsRecurring ? "(Recurring)" : "(One-time)"}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Circle Name */}
@@ -468,12 +833,12 @@ export function CreateCircleForm({ onSuccess, onCancel }: CreateCircleFormProps)
                 type="text"
                 value={circleName}
                 onChange={(e) => setCircleName(e.target.value)}
-                placeholder={habitName}
+                placeholder={mode === "habit" ? habitName : targetTitle}
                 className="w-full input"
                 maxLength={50}
               />
               <p className="text-xs text-muted-foreground">
-                Leave empty to use habit name
+                Leave empty to use {mode === "habit" ? "habit" : "target"} name
               </p>
             </div>
 

@@ -254,22 +254,30 @@ export default function CircleDetailPage() {
 
   const handleOpenEditDialog = () => {
     if (!circle) return;
+    // Only allow editing for habit mode for now
+    if (circle.mode === "target") {
+      setShowMenu(false);
+      return;
+    }
+    const template = circle.publicHabitTemplate;
+    if (!template) return;
+
     setEditForm({
       name: circle.name,
       description: circle.description || "",
       circleIcon: circle.circleIcon,
       circleColor: circle.circleColor,
-      habitName: circle.publicHabitTemplate.name,
-      habitDescription: circle.publicHabitTemplate.description || "",
-      habitIcon: circle.publicHabitTemplate.icon,
-      habitColor: circle.publicHabitTemplate.color,
+      habitName: template.name,
+      habitDescription: template.description || "",
+      habitIcon: template.icon,
+      habitColor: template.color,
     });
     setShowMenu(false);
     setShowEditDialog(true);
   };
 
   const handleUpdate = async () => {
-    if (!user || !circle) return;
+    if (!user || !circle || circle.mode === "target") return;
 
     setIsUpdating(true);
     setError(null);
@@ -288,19 +296,20 @@ export default function CircleDetailPage() {
 
       if (result.success) {
         // Update local state
+        const template = circle.publicHabitTemplate;
         setCircle({
           ...circle,
           name: editForm.name,
           description: editForm.description,
           circleIcon: editForm.circleIcon,
           circleColor: editForm.circleColor,
-          publicHabitTemplate: {
-            ...circle.publicHabitTemplate,
+          publicHabitTemplate: template ? {
+            ...template,
             name: editForm.habitName,
             description: editForm.habitDescription,
             icon: editForm.habitIcon,
             color: editForm.habitColor,
-          },
+          } : undefined,
         });
         setShowEditDialog(false);
       } else {
@@ -492,9 +501,9 @@ export default function CircleDetailPage() {
                           )}
                           {/* Status Ring */}
                           <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-[var(--color-muted)] flex items-center justify-center ${
-                            member.completedToday ? "bg-green-500" : "bg-gray-400"
+                            (circle.mode === "habit" ? member.completedToday : member.completedThisWindow) ? "bg-green-500" : "bg-gray-400"
                           }`}>
-                            {member.completedToday && <Check className="w-2.5 h-2.5 text-white" />}
+                            {(circle.mode === "habit" ? member.completedToday : member.completedThisWindow) && <Check className="w-2.5 h-2.5 text-white" />}
                           </div>
                         </div>
 
@@ -634,7 +643,7 @@ export default function CircleDetailPage() {
             <h2 className="text-lg font-semibold mb-1">{circle.name}</h2>
             <p className="text-sm text-muted-foreground mb-4">{circle.description}</p>
             <p className="text-xs text-muted-foreground">
-              {circle.memberCount || 0} people building this habit
+              {circle.memberCount || 0} people {circle.mode === "habit" ? "building this habit" : "pursuing this target"}
             </p>
           </div>
 

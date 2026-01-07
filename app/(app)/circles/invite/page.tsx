@@ -185,7 +185,12 @@ export default function InviteJoinPage() {
 
             <div className="p-4 rounded-xl bg-[var(--color-brand)]/10 border border-[var(--color-brand)]/20">
               <p className="text-sm text-center">
-                {tp("circleInvite.trackingHabit", { name: circle.publicHabitTemplate.name })}
+                {circle.mode === "habit" && circle.publicHabitTemplate
+                  ? `You'll be tracking: ${circle.publicHabitTemplate.name}`
+                  : circle.mode === "target" && circle.publicTargetTemplate
+                  ? `You'll be pursuing: ${circle.publicTargetTemplate.title}`
+                  : "You'll be working on a goal together"
+                }
               </p>
             </div>
 

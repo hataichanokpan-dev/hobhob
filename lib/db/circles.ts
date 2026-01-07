@@ -1,6 +1,7 @@
 import { database } from "@/lib/firebase/client";
 import { ref, set, get, update, remove, onValue, runTransaction } from "firebase/database";
-import type { Circle, CircleDailyStats, UserCircleMembership, Habit } from "@/types";
+import type { Circle, CircleDailyStats, UserCircleMembership, Habit, Target, TargetInstance, WindowType } from "@/types";
+import { getCurrentWindowKey, getCurrentWindowBounds } from "@/lib/utils/date";
 
 /**
  * Generate unique ID
@@ -33,19 +34,60 @@ export async function createNewCircle(
     circleIcon: string;
     circleColor: string;
     type: "open" | "private";
-    // Habit fields
-    habitName: string;
+    mode: "habit" | "target"; // NEW: Mode selection
+    // Habit fields (for habit mode)
+    habitName?: string;
     habitDescription?: string;
-    habitIcon: string;
-    habitColor: string;
-    habitFrequency: "daily" | "weekly" | "monthly";
+    habitIcon?: string;
+    habitColor?: string;
+    habitFrequency?: "daily" | "weekly" | "monthly";
     habitTargetDays?: number[];
+    // Target fields (for target mode) - NEW
+    targetTitle?: string;
+    targetDescription?: string;
+    targetSuccessCriteria?: string;
+    targetIcon?: string;
+    targetColor?: string;
+    targetWindowType?: WindowType;
+    targetCustomDays?: number;
+    targetIsRecurring?: boolean;
   }
-): Promise<{ success: boolean; circleId?: string; habitId?: string; inviteCode?: string; error?: string }> {
+): Promise<{ success: boolean; circleId?: string; habitId?: string; targetId?: string; inviteCode?: string; error?: string }> {
   try {
     const circleId = generateId();
-    const habitId = generateId();
     const inviteCode = input.type === "private" ? generateInviteCode() : undefined;
+
+    // Helper functions for date calculations
+    const getCurrentWindowKey = (windowType: WindowType, timezone: string, customDays?: number): string => {
+      const now = new Date();
+      // For MVP: simple window keys based on UTC
+      // TODO: Use timezone from user profile
+      switch (windowType) {
+        case "WEEK":
+          const weekNum = getWeekNumber(now);
+          return `${now.getFullYear()}-W${weekNum}`;
+        case "MONTH":
+          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        case "YEAR":
+          return `${now.getFullYear()}`;
+        case "CUSTOM":
+          if (customDays) {
+            const dayNum = Math.floor(Date.now() / (customDays * 24 * 60 * 60 * 1000));
+            return `custom-${dayNum}`;
+          }
+          return `custom-${now.getFullYear()}`;
+        default:
+          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      }
+    };
+
+    const getWeekNumber = (date: Date): number => {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    };
 
     // 1. Create the circle
     const circle: Circle = {
@@ -54,27 +96,56 @@ export async function createNewCircle(
       circleIcon: input.circleIcon,
       circleColor: input.circleColor,
       type: input.type,
+      mode: input.mode,
       createdAt: Date.now(),
       createdBy: uid,
       memberCount: 1, // Creator counts as first member
-      publicHabitTemplate: {
+    };
+
+    // Add description if provided
+    if (input.circleDescription) {
+      circle.description = input.circleDescription;
+    }
+
+    // Add mode-specific template
+    if (input.mode === "habit") {
+      // Habit mode - validate required fields
+      if (!input.habitName || !input.habitIcon || !input.habitColor || !input.habitFrequency) {
+        return { success: false, error: "Missing required habit fields" };
+      }
+      circle.publicHabitTemplate = {
         name: input.habitName,
         icon: input.habitIcon,
         color: input.habitColor,
         frequency: input.habitFrequency,
-      },
-    };
-
-    // Only include description if provided (like habits.ts pattern)
-    if (input.habitDescription) {
-      circle.publicHabitTemplate.description = input.habitDescription;
-    }
-    if (input.circleDescription) {
-      circle.description = input.circleDescription;
-    }
-    // Only include targetDays if provided (for weekly/monthly habits)
-    if (input.habitTargetDays) {
-      circle.publicHabitTemplate.targetDays = input.habitTargetDays;
+      };
+      if (input.habitDescription) {
+        circle.publicHabitTemplate.description = input.habitDescription;
+      }
+      if (input.habitTargetDays) {
+        circle.publicHabitTemplate.targetDays = input.habitTargetDays;
+      }
+    } else if (input.mode === "target") {
+      // Target mode - validate required fields
+      if (!input.targetTitle || !input.targetIcon || !input.targetColor || !input.targetWindowType) {
+        return { success: false, error: "Missing required target fields" };
+      }
+      circle.publicTargetTemplate = {
+        title: input.targetTitle,
+        icon: input.targetIcon,
+        color: input.targetColor,
+        windowType: input.targetWindowType,
+        isRecurring: input.targetIsRecurring ?? false,
+      };
+      if (input.targetDescription) {
+        circle.publicTargetTemplate.description = input.targetDescription;
+      }
+      if (input.targetSuccessCriteria) {
+        circle.publicTargetTemplate.successCriteriaText = input.targetSuccessCriteria;
+      }
+      if (input.targetCustomDays) {
+        circle.publicTargetTemplate.customDurationDays = input.targetCustomDays;
+      }
     }
 
     // Add invite code for private circles
@@ -85,38 +156,123 @@ export async function createNewCircle(
 
     await set(getCircleRef(circleId), circle);
 
-    // 2. Create the habit for the creator
-    const habit: Habit = {
-      id: habitId,
-      name: input.habitName,
-      icon: input.habitIcon,
-      color: input.habitColor,
-      frequency: input.habitFrequency,
-      isActive: true,
-      circleId,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+    // 2. Create the habit or target for the creator
+    let membership: UserCircleMembership;
 
-    // Only include description if provided
-    if (input.habitDescription) {
-      habit.description = input.habitDescription;
-    }
-    // Only include targetDays if provided
-    if (input.habitTargetDays) {
-      habit.targetDays = input.habitTargetDays;
-    }
+    if (input.mode === "habit") {
+      const habitId = generateId();
+      const habit: Habit = {
+        id: habitId,
+        name: input.habitName!,
+        icon: input.habitIcon!,
+        color: input.habitColor!,
+        frequency: input.habitFrequency!,
+        isActive: true,
+        circleId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      if (input.habitDescription) {
+        habit.description = input.habitDescription;
+      }
+      if (input.habitTargetDays) {
+        habit.targetDays = input.habitTargetDays;
+      }
 
-    const habitRef = ref(database, `users/${uid}/habits/${habitId}`);
-    await set(habitRef, habit);
+      const habitRef = ref(database, `users/${uid}/habits/${habitId}`);
+      await set(habitRef, habit);
+
+      membership = {
+        circleId,
+        joinedAt: Date.now(),
+        habitId,
+      };
+    } else {
+      // Target mode
+      const targetId = generateId();
+      const timezone = "UTC"; // TODO: Get from user profile
+
+      // Get current window bounds
+      const now = Date.now();
+      const windowKey = getCurrentWindowKey(input.targetWindowType!, timezone, input.targetCustomDays);
+
+      // Calculate window bounds (simplified for MVP)
+      let windowStart = now;
+      let windowEnd = now;
+
+      switch (input.targetWindowType) {
+        case "WEEK":
+          // Start of week to end of week
+          const weekStart = new Date();
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+          windowStart = weekStart.getTime();
+          windowEnd = windowStart + 7 * 24 * 60 * 60 * 1000;
+          break;
+        case "MONTH":
+          // Start of month to end of month
+          const monthStart = new Date();
+          monthStart.setDate(1);
+          monthStart.setHours(0, 0, 0, 0);
+          windowStart = monthStart.getTime();
+          const nextMonth = new Date(monthStart);
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          windowEnd = nextMonth.getTime();
+          break;
+        default:
+          // Default 30 days for other types
+          windowEnd = now + 30 * 24 * 60 * 60 * 1000;
+      }
+
+      // Create target
+      const target: Target = {
+        id: targetId,
+        title: input.targetTitle!,
+        icon: input.targetIcon!,
+        color: input.targetColor!,
+        windowType: input.targetWindowType!,
+        requiredCount: 1,
+        isRecurring: input.targetIsRecurring ?? false,
+        isArchived: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      if (input.targetDescription) {
+        target.description = input.targetDescription;
+      }
+      if (input.targetSuccessCriteria) {
+        target.successCriteriaText = input.targetSuccessCriteria;
+      }
+      // Only include customDurationDays if defined (Firebase doesn't allow undefined)
+      if (input.targetCustomDays !== undefined) {
+        target.customDurationDays = input.targetCustomDays;
+      }
+
+      const targetRef = ref(database, `users/${uid}/targets/${targetId}`);
+      await set(targetRef, target);
+
+      // Create initial target instance
+      const instanceId = generateId();
+      const instance: TargetInstance = {
+        id: instanceId,
+        targetId,
+        windowKey,
+        windowStart,
+        windowEnd,
+        status: "ACTIVE",
+        createdAt: now,
+      };
+
+      const instanceRef = ref(database, `users/${uid}/targetInstances/${instanceId}`);
+      await set(instanceRef, instance);
+
+      membership = {
+        circleId,
+        joinedAt: Date.now(),
+        targetId,
+      };
+    }
 
     // 3. Create membership record
-    const membership: UserCircleMembership = {
-      circleId,
-      joinedAt: Date.now(),
-      habitId,
-    };
-
     await set(getUserCircleRef(uid, circleId), membership);
 
     // 4. For private circles, store invite code mapping
@@ -131,7 +287,8 @@ export async function createNewCircle(
     return {
       success: true,
       circleId,
-      habitId,
+      habitId: membership.habitId,
+      targetId: membership.targetId,
       inviteCode,
     };
   } catch (error) {
@@ -146,7 +303,7 @@ export async function createNewCircle(
 export async function joinCircleById(
   uid: string,
   circleId: string
-): Promise<{ success: boolean; habitId?: string; error?: string }> {
+): Promise<{ success: boolean; habitId?: string; targetId?: string; error?: string }> {
   try {
     // 1. Get circle data
     const circleSnapshot = await get(getCircleRef(circleId));
@@ -164,71 +321,207 @@ export async function joinCircleById(
       return { success: false, error: "You're already a member of this circle" };
     }
 
-    // 3. Check if user already has a habit with the same name
-    const habitsRef = ref(database, `users/${uid}/habits`);
-    const habitsSnapshot = await get(habitsRef);
-    let existingHabitId: string | null = null;
+    // 3. Handle based on circle mode
+    if (circle.mode === "habit") {
+      if (!circle.publicHabitTemplate) {
+        return { success: false, error: "Invalid circle configuration" };
+      }
 
-    if (habitsSnapshot.exists()) {
-      const habits = habitsSnapshot.val();
-      for (const [id, habit] of Object.entries(habits)) {
-        if ((habit as Habit).name === circle.publicHabitTemplate.name) {
-          existingHabitId = id;
-          break;
+      // Check if user already has a habit with the same name
+      const habitsRef = ref(database, `users/${uid}/habits`);
+      const habitsSnapshot = await get(habitsRef);
+      let existingHabitId: string | null = null;
+
+      if (habitsSnapshot.exists()) {
+        const habits = habitsSnapshot.val();
+        for (const [id, habit] of Object.entries(habits)) {
+          if ((habit as Habit).name === circle.publicHabitTemplate.name) {
+            existingHabitId = id;
+            break;
+          }
         }
       }
-    }
 
-    // 4. Create habit (or use existing)
-    let habitId: string;
+      // Create habit (or use existing)
+      let habitId: string;
 
-    if (existingHabitId) {
-      // Link existing habit to circle
-      habitId = existingHabitId;
-      await update(ref(database, `users/${uid}/habits/${habitId}`), {
+      if (existingHabitId) {
+        // Link existing habit to circle
+        habitId = existingHabitId;
+        await update(ref(database, `users/${uid}/habits/${habitId}`), {
+          circleId,
+          updatedAt: Date.now(),
+        });
+      } else {
+        // Create new habit from circle template
+        habitId = generateId();
+        const habit: Habit = {
+          id: habitId,
+          name: circle.publicHabitTemplate.name,
+          icon: circle.publicHabitTemplate.icon,
+          color: circle.publicHabitTemplate.color,
+          frequency: circle.publicHabitTemplate.frequency,
+          isActive: true,
+          circleId,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+
+        if (circle.publicHabitTemplate.description) {
+          habit.description = circle.publicHabitTemplate.description;
+        }
+        if (circle.publicHabitTemplate.targetDays) {
+          habit.targetDays = circle.publicHabitTemplate.targetDays;
+        }
+
+        await set(ref(database, `users/${uid}/habits/${habitId}`), habit);
+      }
+
+      // Create membership record
+      const membership: UserCircleMembership = {
         circleId,
-        updatedAt: Date.now(),
-      });
-    } else {
-      // Create new habit from circle template
-      habitId = generateId();
-      const habit: Habit = {
-        id: habitId,
-        name: circle.publicHabitTemplate.name,
-        icon: circle.publicHabitTemplate.icon,
-        color: circle.publicHabitTemplate.color,
-        frequency: circle.publicHabitTemplate.frequency,
-        isActive: true,
-        circleId,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        joinedAt: Date.now(),
+        habitId,
       };
 
-      // Only include description if provided
-      if (circle.publicHabitTemplate.description) {
-        habit.description = circle.publicHabitTemplate.description;
-      }
-      // Only include targetDays if provided
-      if (circle.publicHabitTemplate.targetDays) {
-        habit.targetDays = circle.publicHabitTemplate.targetDays;
+      await set(getUserCircleRef(uid, circleId), membership);
+      await incrementCircleMemberCount(circleId);
+
+      return { success: true, habitId };
+    } else if (circle.mode === "target") {
+      if (!circle.publicTargetTemplate) {
+        return { success: false, error: "Invalid circle configuration" };
       }
 
-      await set(ref(database, `users/${uid}/habits/${habitId}`), habit);
+      // Check if user already has a target with the same title
+      const targetsRef = ref(database, `users/${uid}/targets`);
+      const targetsSnapshot = await get(targetsRef);
+      let existingTargetId: string | null = null;
+
+      if (targetsSnapshot.exists()) {
+        const targets = targetsSnapshot.val();
+        for (const [id, target] of Object.entries(targets)) {
+          if ((target as Target).title === circle.publicTargetTemplate.title) {
+            existingTargetId = id;
+            break;
+          }
+        }
+      }
+
+      // Create target (or use existing)
+      let targetId: string;
+
+      if (existingTargetId) {
+        // Link existing target to circle
+        targetId = existingTargetId;
+        await update(ref(database, `users/${uid}/targets/${targetId}`), {
+          circleId,
+          updatedAt: Date.now(),
+        });
+      } else {
+        // Create new target from circle template
+        targetId = generateId();
+        const timezone = "UTC"; // TODO: Get from user profile
+
+        // Helper functions (same as in createNewCircle)
+        const getCurrentWindowKey = (windowType: WindowType, timezone: string, customDays?: number): string => {
+          const now = new Date();
+          switch (windowType) {
+            case "WEEK":
+              const weekNum = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+              return `${now.getFullYear()}-W${weekNum}`;
+            case "MONTH":
+              return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            case "YEAR":
+              return `${now.getFullYear()}`;
+            default:
+              return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          }
+        };
+
+        const now = Date.now();
+        const windowKey = getCurrentWindowKey(circle.publicTargetTemplate.windowType, timezone, circle.publicTargetTemplate.customDurationDays);
+
+        // Calculate window bounds
+        let windowStart = now;
+        let windowEnd = now;
+
+        switch (circle.publicTargetTemplate.windowType) {
+          case "WEEK":
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            windowStart = weekStart.getTime();
+            windowEnd = windowStart + 7 * 24 * 60 * 60 * 1000;
+            break;
+          case "MONTH":
+            const monthStart = new Date();
+            monthStart.setDate(1);
+            monthStart.setHours(0, 0, 0, 0);
+            windowStart = monthStart.getTime();
+            const nextMonth = new Date(monthStart);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            windowEnd = nextMonth.getTime();
+            break;
+          default:
+            windowEnd = now + 30 * 24 * 60 * 60 * 1000;
+        }
+
+        // Create target
+        const target: Target = {
+          id: targetId,
+          title: circle.publicTargetTemplate.title,
+          icon: circle.publicTargetTemplate.icon,
+          color: circle.publicTargetTemplate.color,
+          windowType: circle.publicTargetTemplate.windowType,
+          requiredCount: 1,
+          isRecurring: circle.publicTargetTemplate.isRecurring,
+          isArchived: false,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+
+        if (circle.publicTargetTemplate.description) {
+          target.description = circle.publicTargetTemplate.description;
+        }
+        if (circle.publicTargetTemplate.successCriteriaText) {
+          target.successCriteriaText = circle.publicTargetTemplate.successCriteriaText;
+        }
+        // Only include customDurationDays if defined (Firebase doesn't allow undefined)
+        if (circle.publicTargetTemplate.customDurationDays !== undefined) {
+          target.customDurationDays = circle.publicTargetTemplate.customDurationDays;
+        }
+
+        await set(ref(database, `users/${uid}/targets/${targetId}`), target);
+
+        // Create initial target instance
+        const instanceId = generateId();
+        const instance: TargetInstance = {
+          id: instanceId,
+          targetId,
+          windowKey,
+          windowStart,
+          windowEnd,
+          status: "ACTIVE",
+          createdAt: now,
+        };
+
+        await set(ref(database, `users/${uid}/targetInstances/${instanceId}`), instance);
+      }
+
+      // Create membership record
+      const membership: UserCircleMembership = {
+        circleId,
+        joinedAt: Date.now(),
+        targetId,
+      };
+
+      await set(getUserCircleRef(uid, circleId), membership);
+      await incrementCircleMemberCount(circleId);
+
+      return { success: true, targetId };
     }
 
-    // 5. Create membership record
-    const membership: UserCircleMembership = {
-      circleId,
-      joinedAt: Date.now(),
-      habitId,
-    };
-
-    await set(getUserCircleRef(uid, circleId), membership);
-
-    // 6. Increment member count
-    await incrementCircleMemberCount(circleId);
-
-    return { success: true, habitId };
+    return { success: false, error: "Invalid circle mode" };
   } catch (error) {
     console.error("Error joining circle:", error);
     return { success: false, error: "Failed to join circle. Please try again." };
@@ -303,7 +596,7 @@ export async function getCircleByInviteCode(
 export async function joinCircleByInviteCode(
   uid: string,
   inviteCode: string
-): Promise<{ success: boolean; circleId?: string; habitId?: string; error?: string }> {
+): Promise<{ success: boolean; circleId?: string; habitId?: string; targetId?: string; error?: string }> {
   try {
     // 1. Find circle with this invite code
     const circlesSnapshot = await get(getCirclesRef());
@@ -346,38 +639,104 @@ export async function joinCircleByInviteCode(
       return { success: false, error: "This circle is full" };
     }
 
-    // 5. Create habit
-    const habitId = generateId();
-    const habit: Habit = {
-      id: habitId,
-      name: targetCircle.publicHabitTemplate.name,
-      icon: targetCircle.publicHabitTemplate.icon,
-      color: targetCircle.publicHabitTemplate.color,
-      frequency: targetCircle.publicHabitTemplate.frequency,
-      isActive: true,
-      circleId: targetCircleId,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+    // 5. Create habit or target based on circle mode
+    let membership: UserCircleMembership;
 
-    // Only include description if provided
-    if (targetCircle.publicHabitTemplate.description) {
-      habit.description = targetCircle.publicHabitTemplate.description;
-    }
-    // Only include targetDays if provided
-    if (targetCircle.publicHabitTemplate.targetDays) {
-      habit.targetDays = targetCircle.publicHabitTemplate.targetDays;
-    }
+    if (targetCircle.mode === "habit") {
+      const habitTemplate = targetCircle.publicHabitTemplate;
+      if (!habitTemplate) {
+        return { success: false, error: "Invalid circle configuration" };
+      }
 
-    await set(ref(database, `users/${uid}/habits/${habitId}`), habit);
+      const habitId = generateId();
+      const habit: Habit = {
+        id: habitId,
+        name: habitTemplate.name,
+        icon: habitTemplate.icon,
+        color: habitTemplate.color,
+        frequency: habitTemplate.frequency,
+        isActive: true,
+        circleId: targetCircleId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      // Only include description if provided
+      if (habitTemplate.description) {
+        habit.description = habitTemplate.description;
+      }
+      // Only include targetDays if provided
+      if (habitTemplate.targetDays) {
+        habit.targetDays = habitTemplate.targetDays;
+      }
+
+      await set(ref(database, `users/${uid}/habits/${habitId}`), habit);
+
+      membership = {
+        circleId: targetCircleId,
+        joinedAt: Date.now(),
+        habitId,
+      };
+    } else {
+      // Target mode
+      const targetTemplate = targetCircle.publicTargetTemplate;
+      if (!targetTemplate) {
+        return { success: false, error: "Invalid circle configuration" };
+      }
+
+      const targetId = generateId();
+      const target: Target = {
+        id: targetId,
+        title: targetTemplate.title,
+        icon: targetTemplate.icon,
+        color: targetTemplate.color,
+        windowType: targetTemplate.windowType,
+        requiredCount: 1,
+        isRecurring: targetTemplate.isRecurring,
+        isArchived: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      // Only include optional fields if defined (Firebase doesn't allow undefined)
+      if (targetTemplate.description) {
+        target.description = targetTemplate.description;
+      }
+      if (targetTemplate.successCriteriaText) {
+        target.successCriteriaText = targetTemplate.successCriteriaText;
+      }
+      if (targetTemplate.customDurationDays !== undefined) {
+        target.customDurationDays = targetTemplate.customDurationDays;
+      }
+
+      await set(ref(database, `users/${uid}/targets/${targetId}`), target);
+
+      // Create initial target instance
+      const instanceId = generateId();
+      const timezone = "UTC"; // Default timezone, could be enhanced to use user's timezone
+      const windowKey = getCurrentWindowKey(target.windowType, timezone, target.customDurationDays);
+      const { start: windowStart, end: windowEnd } = getCurrentWindowBounds(target.windowType, timezone, target.customDurationDays);
+
+      const instance: TargetInstance = {
+        id: instanceId,
+        targetId,
+        windowKey,
+        windowStart,
+        windowEnd,
+        status: "ACTIVE",
+        createdAt: Date.now(),
+      };
+
+      await set(ref(database, `users/${uid}/targetInstances/${instanceId}`), instance);
+
+      membership = {
+        circleId: targetCircleId,
+        joinedAt: Date.now(),
+        targetId,
+      };
+    }
 
     // 6. Create membership
-    const membership: UserCircleMembership = {
-      circleId: targetCircleId,
-      joinedAt: Date.now(),
-      habitId,
-    };
-
     await set(getUserCircleRef(uid, targetCircleId), membership);
 
     // 7. Add user to circle's memberIds
@@ -391,7 +750,8 @@ export async function joinCircleByInviteCode(
     return {
       success: true,
       circleId: targetCircleId,
-      habitId,
+      habitId: membership.habitId,
+      targetId: membership.targetId,
     };
   } catch (error) {
     console.error("Error joining by invite code:", error);
@@ -787,24 +1147,64 @@ export async function getCircleMembers(
           const profileSnapshot = await get(ref(database, `users/${memberUid}/profile`));
           const profile = profileSnapshot.exists() ? profileSnapshot.val() : null;
 
-          // Get user's circle membership to find habitId
+          // Get user's circle membership
           const membershipSnapshot = await get(getUserCircleRef(memberUid, circleId));
           if (!membershipSnapshot.exists()) continue;
 
           const membership = membershipSnapshot.val() as UserCircleMembership;
-          const habitId = membership.habitId;
 
-          // Get today's check-in status
-          const checkinSnapshot = await get(ref(database, `users/${memberUid}/checkins/${date}/${habitId}`));
-          const checkinValue = checkinSnapshot.exists() ? checkinSnapshot.val() : null;
-          const completedToday = checkinValue === true || (checkinValue?.checked === true);
+          // Handle based on circle mode
+          if (circle.mode === "habit" && membership.habitId) {
+            const habitId = membership.habitId;
 
-          members.push({
-            uid: memberUid,
-            profile,
-            habitId,
-            completedToday,
-          });
+            // Get today's check-in status
+            const checkinSnapshot = await get(ref(database, `users/${memberUid}/checkins/${date}/${habitId}`));
+            const checkinValue = checkinSnapshot.exists() ? checkinSnapshot.val() : null;
+            const completedToday = checkinValue === true || (checkinValue?.checked === true);
+
+            members.push({
+              uid: memberUid,
+              profile,
+              habitId,
+              completedToday,
+            });
+          } else if (circle.mode === "target" && membership.targetId) {
+            const targetId = membership.targetId;
+
+            // Get all target instances for this user's target
+            const instancesSnapshot = await get(ref(database, `users/${memberUid}/targetInstances`));
+            let completedThisWindow = false;
+            let currentInstance: TargetInstance | undefined;
+
+            if (instancesSnapshot.exists()) {
+              const instances = instancesSnapshot.val();
+              const now = Date.now();
+
+              // Find instance for this target in current window
+              for (const [instanceId, instanceData] of Object.entries(instances)) {
+                const instance = instanceData as TargetInstance;
+                if (instance.targetId === targetId) {
+                  // Check if window is still valid
+                  if (now >= instance.windowStart && now <= instance.windowEnd) {
+                    currentInstance = instance;
+                    // Check if completed
+                    if (instance.status === "COMPLETED") {
+                      completedThisWindow = true;
+                    }
+                    break; // Found the current window instance
+                  }
+                }
+              }
+            }
+
+            members.push({
+              uid: memberUid,
+              profile,
+              targetId,
+              completedThisWindow,
+              currentInstance,
+            });
+          }
         } catch (err) {
           console.error(`Error fetching member ${memberUid}:`, err);
         }

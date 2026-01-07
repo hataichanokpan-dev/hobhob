@@ -69,7 +69,7 @@ export function SettingItem({
           <div>
             <h3 className="font-medium">{label}</h3>
             {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <span className="text-xs text-muted-foreground">{description}</span>
             )}
           </div>
         </div>

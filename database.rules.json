@@ -38,7 +38,7 @@
           // Users can write their own circle memberships
           ".write": "auth != null && auth.uid == $uid",
           "$circleId": {
-            ".validate": "newData.hasChildren(['joinedAt', 'habitId'])"
+            ".validate": "newData.hasChildren(['joinedAt']) && (newData.child('habitId').exists() || newData.child('targetId').exists())"
           }
         },
         "targets": {

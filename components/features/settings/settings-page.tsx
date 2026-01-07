@@ -224,9 +224,9 @@ export function SettingsPage() {
                     <span className="text-2xl">{circle.emoji}</span>
                     <div>
                       <p className="font-medium text-sm">{circle.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {circle.memberCount || 0} members
-                      </p>
+                      </span>
                     </div>
                   </div>
 
@@ -329,9 +329,9 @@ export function SettingsPage() {
         </div>
 
         {/* App Info */}
-        <div className="text-center text-xs text-muted-foreground pt-8">
+        <div className="text-center text-xs text-muted-foreground pt-10">
           <p>HobHob v1.0.0</p>
-          <p className="mt-1">{t("settings.builtWith")}</p>
+          <span className="text-xs">© 2026 THP Inc.</span>
         </div>
       </div>
     </div>

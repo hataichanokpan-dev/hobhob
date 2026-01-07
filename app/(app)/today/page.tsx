@@ -341,9 +341,9 @@ export default function TodayPage() {
                   </button>
                 )}
               </div>
-              <p className="text-muted-foreground text-sm">
+              <span className="text-muted-foreground text-sm">
                 {formatReadableDate(new Date(), timezone)}
-              </p>
+              </span>
             </div>
 
             <div className="flex items-center gap-3">
@@ -363,12 +363,12 @@ export default function TodayPage() {
                   <div className="text-3xl font-semibold gradient-text">
                     {completionRate}%
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <span className="text-xs text-muted-foreground mt-1">
                     {tp("today.completedCount", {
                       completed: completedCount,
                       total: todaysHabits.length,
                     })}
-                  </p>
+                  </span>
                 </div>
               )}
             </div>

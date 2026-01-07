@@ -103,6 +103,7 @@ export interface Follows {
 
 // ============ Circle Types ============
 export type CircleType = "open" | "private";
+export type CircleMode = "habit" | "target";
 
 export interface CircleHabitTemplate {
   name: string;
@@ -113,6 +114,17 @@ export interface CircleHabitTemplate {
   targetDays?: number[];
 }
 
+export interface CircleTargetTemplate {
+  title: string;
+  description?: string;
+  successCriteriaText?: string;
+  icon: string;
+  color: string;
+  windowType: WindowType;
+  customDurationDays?: number;
+  isRecurring: boolean;
+}
+
 export interface Circle {
   id: string;
   name: string;
@@ -120,12 +132,15 @@ export interface Circle {
   circleIcon: string; // Icon for the circle itself (social context)
   circleColor: string; // Color for the circle itself
   type: CircleType;
+  mode: CircleMode; // "habit" or "target"
   createdAt: number;
   createdBy: string; // uid
   memberCount?: number;
   activeToday?: number;
-  // For open circles
-  publicHabitTemplate: CircleHabitTemplate;
+  // For habit mode
+  publicHabitTemplate?: CircleHabitTemplate;
+  // For target mode
+  publicTargetTemplate?: CircleTargetTemplate;
   // For private circles only
   memberIds?: string[];
   inviteCode?: string;
@@ -140,15 +155,19 @@ export interface CircleDailyStats {
 export interface UserCircleMembership {
   circleId: string;
   joinedAt: number;
-  habitId: string;
+  habitId?: string; // Present for habit mode
+  targetId?: string; // Present for target mode
 }
 
 // Circle member with their profile and completion status
 export interface CircleMember {
   uid: string;
   profile: UserProfile | null;
-  habitId: string;
-  completedToday: boolean;
+  habitId?: string; // For habit mode
+  targetId?: string; // For target mode
+  completedToday?: boolean; // For habit mode
+  completedThisWindow?: boolean; // For target mode
+  currentInstance?: TargetInstance; // For target mode
 }
 
 // Encouragement/reaction from one member to another
