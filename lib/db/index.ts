@@ -1,6 +1,6 @@
 import { database } from "@/lib/firebase/client";
-import { ref, set, get, update, remove, onValue } from "firebase/database";
-import type { UserProfile, Habit, DayCheckins, HabitStats } from "@/types";
+import { ref, set, get, update, remove, onValue, query, orderByChild, equalTo } from "firebase/database";
+import type { UserProfile, Habit, DayCheckins, HabitStats, Target, TargetInstance } from "@/types";
 
 // Re-export Firebase database functions
 export { ref, update, remove, onValue };
@@ -152,6 +152,111 @@ export function listenToAllCheckins(
 ): () => void {
   const checkinsRef = ref(database, `users/${uid}/checkins`);
   return onValue(checkinsRef, (snapshot) => {
+    callback(snapshot.val());
+  });
+}
+
+// ============ Target Functions ============
+
+/**
+ * Get targets reference
+ */
+export function getTargetsRef(uid: string) {
+  return ref(database, `users/${uid}/targets`);
+}
+
+/**
+ * Get single target reference
+ */
+export function getTargetRef(uid: string, targetId: string) {
+  return ref(database, `users/${uid}/targets/${targetId}`);
+}
+
+/**
+ * Get target instances reference
+ */
+export function getTargetInstancesRef(uid: string) {
+  return ref(database, `users/${uid}/targetInstances`);
+}
+
+/**
+ * Get single target instance reference
+ */
+export function getTargetInstanceRef(uid: string, instanceId: string) {
+  return ref(database, `users/${uid}/targetInstances/${instanceId}`);
+}
+
+/**
+ * Get instances for a specific target
+ */
+export function getTargetInstancesByTargetRef(uid: string, targetId: string) {
+  return query(
+    ref(database, `users/${uid}/targetInstances`),
+    orderByChild("targetId"),
+    equalTo(targetId)
+  );
+}
+
+/**
+ * Create new target
+ */
+export async function createTarget(uid: string, target: Target): Promise<void> {
+  await set(getTargetRef(uid, target.id), target);
+}
+
+/**
+ * Update target
+ */
+export async function updateTarget(uid: string, targetId: string, updates: Partial<Target>): Promise<void> {
+  await update(getTargetRef(uid, targetId), {
+    ...updates,
+    updatedAt: Date.now(),
+  });
+}
+
+/**
+ * Delete target
+ */
+export async function deleteTarget(uid: string, targetId: string): Promise<void> {
+  await remove(getTargetRef(uid, targetId));
+}
+
+/**
+ * Create target instance
+ */
+export async function createTargetInstance(uid: string, instance: TargetInstance): Promise<void> {
+  await set(getTargetInstanceRef(uid, instance.id), instance);
+}
+
+/**
+ * Update target instance
+ */
+export async function updateTargetInstance(uid: string, instanceId: string, updates: Partial<TargetInstance>): Promise<void> {
+  await update(getTargetInstanceRef(uid, instanceId), updates);
+}
+
+/**
+ * Listen to targets changes
+ */
+export function listenToTargets(
+  uid: string,
+  callback: (targets: Record<string, Target> | null) => void
+): () => void {
+  const targetsRef = getTargetsRef(uid);
+  return onValue(targetsRef, (snapshot) => {
+    callback(snapshot.val());
+  });
+}
+
+/**
+ * Listen to target instances changes
+ */
+export function listenToTargetInstances(
+  uid: string,
+  callback: (instances: Record<string, TargetInstance> | null) => void
+): () => void {
+  const instancesRef = getTargetInstancesRef(uid);
+  return onValue(instancesRef, (snapshot) => {
     callback(snapshot.val());
   });
 }

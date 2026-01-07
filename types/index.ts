@@ -199,3 +199,77 @@ export interface CirclesStoreActions {
   clearError: () => void;
   reset: () => void;
 }
+
+// ============ Target Types ============
+export type WindowType = "WEEK" | "MONTH" | "YEAR" | "2_WEEKS" | "2_MONTHS" | "6_MONTHS" | "CUSTOM";
+export type TargetInstanceStatus = "ACTIVE" | "COMPLETED" | "EXPIRED";
+
+/**
+ * Target template - defines a recurring or one-time goal
+ */
+export interface Target {
+  id: string;
+  title: string;
+  description?: string;
+  successCriteriaText?: string;
+  icon: string;
+  color: string;
+  windowType: WindowType;
+  customDurationDays?: number; // Number of days for custom window
+  requiredCount: number; // MVP: always 1
+  isRecurring: boolean;
+  isArchived: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Target instance - created per time window
+ */
+export interface TargetInstance {
+  id: string;
+  targetId: string;
+  windowKey: string; // Format: WEEK=YYYY-Www, MONTH=YYYY-MM, YEAR=YYYY, 2_WEEKS=YYYY-Www+2w, etc.
+  windowStart: number; // Unix timestamp
+  windowEnd: number; // Unix timestamp
+  status: TargetInstanceStatus;
+  completedAt?: number;
+  createdAt: number;
+}
+
+/**
+ * For creating a new target
+ */
+export interface CreateTargetInput {
+  title: string;
+  description?: string;
+  successCriteriaText?: string;
+  icon: string;
+  color: string;
+  windowType: WindowType;
+  customDurationDays?: number; // Number of days for custom window (required if windowType is CUSTOM)
+  requiredCount?: number; // Default 1
+  isRecurring?: boolean; // Default false
+}
+
+/**
+ * For updating an existing target
+ */
+export interface UpdateTargetInput extends Partial<CreateTargetInput> {
+  id: string;
+  isArchived?: boolean;
+}
+
+/**
+ * Targets template storage structure
+ */
+export interface Targets {
+  [targetId: string]: Target;
+}
+
+/**
+ * Target instances storage structure
+ */
+export interface TargetInstances {
+  [instanceId: string]: TargetInstance;
+}

@@ -40,6 +40,22 @@
           "$circleId": {
             ".validate": "newData.hasChildren(['joinedAt', 'habitId'])"
           }
+        },
+        "targets": {
+          // Users can read and write their own targets
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          "$targetId": {
+            ".validate": "newData.hasChildren(['title', 'icon', 'color', 'windowType', 'createdAt', 'updatedAt'])"
+          }
+        },
+        "targetInstances": {
+          // Users can read and write their own target instances
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          "$instanceId": {
+            ".validate": "newData.hasChildren(['targetId', 'windowKey', 'windowStart', 'windowEnd', 'status', 'createdAt'])"
+          }
         }
       }
     },
