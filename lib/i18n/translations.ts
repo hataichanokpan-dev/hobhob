@@ -93,7 +93,8 @@ export const translations = {
       noHabitsScheduled: "No habits scheduled for today. Enjoy your rest! 🎉",
       emptyState: {
         title: "Start Your Journey",
-        description: "Create your first habit and start building better habits today. Small steps lead to big changes!",
+        description:
+          "Create your first habit and start building better habits today. Small steps lead to big changes!",
         button: "Create Your First Habit",
       },
     },
@@ -109,7 +110,8 @@ export const translations = {
       },
       emptyState: {
         title: "No habits yet",
-        description: "Create your first habit and start building better habits today. Small steps lead to big changes!",
+        description:
+          "Create your first habit and start building better habits today. Small steps lead to big changes!",
         button: "Create Your First Habit",
       },
       noResults: "No habits found for this filter.",
@@ -165,7 +167,8 @@ export const translations = {
       ofDays: "of {total} days",
       emptyState: {
         title: "No stats yet",
-        description: "Complete some check-ins to see your progress. Start tracking your habits today!",
+        description:
+          "Complete some check-ins to see your progress. Start tracking your habits today!",
       },
     },
 
@@ -282,7 +285,8 @@ export const translations = {
       creator: "Creator",
       delete: "Delete Circle",
       deleteConfirm: "Delete Circle?",
-      deleteWarning: "This will permanently delete \"{name}\". Members will lose access to this circle, but their habits will remain.",
+      deleteWarning:
+        'This will permanently delete "{name}". Members will lose access to this circle, but their habits will remain.',
     },
 
     // Circle Invite
@@ -294,8 +298,9 @@ export const translations = {
       continue: "Continue",
       checking: "Checking...",
       privateCircle: "Private Circle",
-      privateInfo: "• 2-6 members only\n• See who's in the circle\n• Encourage each other",
-      trackingHabit: "You'll track \"{name}\"",
+      privateInfo:
+        "• 2-6 members only\n• See who's in the circle\n• Encourage each other",
+      trackingHabit: 'You\'ll track "{name}"',
       join: "Join Circle",
       joining: "Joining...",
       differentCode: "Enter different code",
@@ -333,7 +338,8 @@ export const translations = {
       dangerZone: "DANGER ZONE",
       deleteAccount: {
         label: "Delete Account",
-        confirmation: "Are you sure you want to delete your account? This will permanently delete all your habits, check-ins, and stats. This action cannot be undone.",
+        confirmation:
+          "Are you sure you want to delete your account? This will permanently delete all your habits, check-ins, and stats. This action cannot be undone.",
         failed: "Failed to delete account. Please try again.",
       },
       builtWith: "Built with Next.js and Firebase",
@@ -408,7 +414,8 @@ export const translations = {
       descriptionPlaceholder: "What's this target about?",
       successCriteriaLabel: "Success Criteria (optional)",
       successCriteriaPlaceholder: "What counts as completing this target?",
-      successCriteriaHelp: "Describe what needs to be done to mark this target as complete",
+      successCriteriaHelp:
+        "Describe what needs to be done to mark this target as complete",
       iconLabel: "Icon",
       colorLabel: "Color",
       windowTypeLabel: "Time Window",
@@ -457,7 +464,8 @@ export const translations = {
       markDone: "Mark Done",
       edit: "Edit",
       archive: "Archive",
-      archiveConfirm: "Archive this target? It will no longer create new instances.",
+      archiveConfirm:
+        "Archive this target? It will no longer create new instances.",
     },
 
     // PWA Install Prompt
@@ -466,13 +474,16 @@ export const translations = {
       subtitle: "Add to home screen for best experience",
       gotIt: "Got it!",
       ios: {
-        notSafari: "Please open this page in Safari to install HobHob on your device.",
+        notSafari:
+          "Please open this page in Safari to install HobHob on your device.",
         step1: "Tap the Share button",
         step2: "Scroll down and tap 'Add to Home Screen'",
       },
       android: {
-        chrome: "Look for the 'Add to Home Screen' banner at the bottom or tap the menu (⋮) and select 'Install app' or 'Add to Home Screen'.",
-        other: "Tap the menu (⋮) and look for 'Install app' or 'Add to Home Screen' option.",
+        chrome:
+          "Look for the 'Add to Home Screen' banner at the bottom or tap the menu (⋮) and select 'Install app' or 'Add to Home Screen'.",
+        other:
+          "Tap the menu (⋮) and look for 'Install app' or 'Add to Home Screen' option.",
       },
     },
 
@@ -494,6 +505,7 @@ export const translations = {
       rate: "Rate",
       recentlyCompleted: "Recently Completed",
       activeTargets: "Active Targets",
+      targets: "targets",
     },
 
     // Doc Page
@@ -502,7 +514,8 @@ export const translations = {
       subtitle: "Learn how to use HobHob",
       welcome: {
         title: "Welcome to HobHob! 🎉",
-        description: "Your cute habit tracking companion. Small steps lead to big changes!",
+        description:
+          "Your cute habit tracking companion. Small steps lead to big changes!",
       },
       sections: {
         today: {
@@ -704,7 +717,8 @@ export const translations = {
       noHabitsScheduled: "วันนี้ไม่มีนิสัยที่ต้องทำ สนุกวันว่างได้เลย! 🎉",
       emptyState: {
         title: "เริ่มต้นการเดินทาง",
-        description: "สร้างนิสัยแรกของคุณและเริ่มสร้างนิสัยที่ดีขึ้นตั้งแต่วันนี้ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
+        description:
+          "สร้างนิสัยแรกของคุณและเริ่มสร้างนิสัยที่ดีขึ้นตั้งแต่วันนี้ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
         button: "สร้างนิสัยแรกของคุณ",
       },
     },
@@ -720,7 +734,8 @@ export const translations = {
       },
       emptyState: {
         title: "ยังไม่มีนิสัย",
-        description: "สร้างนิสัยแรกของคุณและเริ่มสร้างนิสัยที่ดีขึ้นตั้งแต่วันนี้ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
+        description:
+          "สร้างนิสัยแรกของคุณและเริ่มสร้างนิสัยที่ดีขึ้นตั้งแต่วันนี้ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
         button: "สร้างนิสัยแรกของคุณ",
       },
       noResults: "ไม่พบนิสัยสำหรับตัวกรองนี้",
@@ -776,7 +791,8 @@ export const translations = {
       ofDays: "จาก {total} วัน",
       emptyState: {
         title: "ยังไม่มีสถิติ",
-        description: "ทำการเช็คอินเพื่อดูความคืดหน้าของคุณ เริ่มติดตามนิสัยของคุณตั้งแต่วันนี้!",
+        description:
+          "ทำการเช็คอินเพื่อดูความคืดหน้าของคุณ เริ่มติดตามนิสัยของคุณตั้งแต่วันนี้!",
       },
     },
 
@@ -893,7 +909,8 @@ export const translations = {
       creator: "ผู้สร้าง",
       delete: "ลบวงกลม",
       deleteConfirm: "ลบวงกลม?",
-      deleteWarning: "การดำเนินการนี้จะลบ \"{name}\" อย่างถาวร สมาชิกจะไม่สามารถเข้าถึงวงกลมนี้ได้อีก แต่นิสัยของพวกเขาจะยังคงอยู่",
+      deleteWarning:
+        'การดำเนินการนี้จะลบ "{name}" อย่างถาวร สมาชิกจะไม่สามารถเข้าถึงวงกลมนี้ได้อีก แต่นิสัยของพวกเขาจะยังคงอยู่',
     },
 
     // Circle Invite
@@ -905,8 +922,9 @@ export const translations = {
       continue: "ดำเนินการต่อ",
       checking: "กำลังตรวจสอบ...",
       privateCircle: "วงกลมส่วนตัว",
-      privateInfo: "• 2-6 สมาชิกเท่านั้น\n• เห็นว่าใครอยู่ในวงกลม\n• ส่งเสริมซึ่งกันและกัน",
-      trackingHabit: "คุณจะติดตาม \"{name}\"",
+      privateInfo:
+        "• 2-6 สมาชิกเท่านั้น\n• เห็นว่าใครอยู่ในวงกลม\n• ส่งเสริมซึ่งกันและกัน",
+      trackingHabit: 'คุณจะติดตาม "{name}"',
       join: "เข้าร่วมวงกลม",
       joining: "กำลังเข้าร่วม...",
       differentCode: "ป้อนรหัสอื่น",
@@ -944,7 +962,8 @@ export const translations = {
       dangerZone: "โซนอันตราย",
       deleteAccount: {
         label: "ลบบัญชี",
-        confirmation: "คุณแน่ใจหรือไม่ที่จะลบบัญชีของคุณ? การดำเนินการนี้จะลบนิสัย การเช็คอิน และสถิติทั้งหมดของคุณอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+        confirmation:
+          "คุณแน่ใจหรือไม่ที่จะลบบัญชีของคุณ? การดำเนินการนี้จะลบนิสัย การเช็คอิน และสถิติทั้งหมดของคุณอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้",
         failed: "การลบบัญชีล้มเหลว กรุณาลองอีกครั้ง",
       },
       builtWith: "สร้างด้วย Next.js และ Firebase",
@@ -1019,7 +1038,8 @@ export const translations = {
       descriptionPlaceholder: "เป้าหมายนี้เกี่ยวกับอะไร?",
       successCriteriaLabel: "เกณฑ์ความสำเร็จ (ไม่บังคับ)",
       successCriteriaPlaceholder: "อะไรคือการเสร็จสิ้นเป้าหมายนี้?",
-      successCriteriaHelp: "อธิบายสิ่งที่ต้องทำเพื่อทำเครื่องหมายเป้าหมายนี้ว่าสำเร็จ",
+      successCriteriaHelp:
+        "อธิบายสิ่งที่ต้องทำเพื่อทำเครื่องหมายเป้าหมายนี้ว่าสำเร็จ",
       iconLabel: "ไอคอน",
       colorLabel: "สี",
       windowTypeLabel: "ช่วงเวลา",
@@ -1077,13 +1097,16 @@ export const translations = {
       subtitle: "เพิ่มไปยังหน้าจอโฮมเพื่อประสบการณ์ที่ดีที่สุด",
       gotIt: "เข้าใจแล้ว!",
       ios: {
-        notSafari: "กรุณาเปิดหน้านี้ใน Safari เพื่อติดตั้ง HobHob บนอุปกรณ์ของคุณ",
+        notSafari:
+          "กรุณาเปิดหน้านี้ใน Safari เพื่อติดตั้ง HobHob บนอุปกรณ์ของคุณ",
         step1: "แตะที่ปุ่มแชร์",
         step2: "เลื่อนลงและแตะ 'เพิ่มไปยังหน้าจอโฮม'",
       },
       android: {
-        chrome: "มองหาแบนเนอร์ 'เพิ่มไปยังหน้าจอโฮม' ที่ด้านล่าง หรือแตะที่เมนู (⋮) และเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
-        other: "แตะที่เมนู (⋮) และมองหาตัวเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
+        chrome:
+          "มองหาแบนเนอร์ 'เพิ่มไปยังหน้าจอโฮม' ที่ด้านล่าง หรือแตะที่เมนู (⋮) และเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
+        other:
+          "แตะที่เมนู (⋮) และมองหาตัวเลือก 'ติดตั้งแอป' หรือ 'เพิ่มไปยังหน้าจอโฮม'",
       },
     },
 
@@ -1105,6 +1128,7 @@ export const translations = {
       rate: "อัตรา",
       recentlyCompleted: "สำเร็จล่าสุด",
       activeTargets: "เป้าหมายที่กำลังดำเนินการ",
+      targets: "เป้าหมาย",
     },
 
     // Doc Page
@@ -1113,7 +1137,8 @@ export const translations = {
       subtitle: "เรียนรู้วิธีใช้ HobHob",
       welcome: {
         title: "ยินดีต้อนรับสู่ HobHob! 🎉",
-        description: "เพื่อนคู่ความนิสัยที่น่ารักของคุณ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
+        description:
+          "เพื่อนคู่ความนิสัยที่น่ารักของคุณ ก้าวเล็ก ๆ นำไปสู่การเปลี่ยนแปลงครั้งใหญ่!",
       },
       sections: {
         today: {

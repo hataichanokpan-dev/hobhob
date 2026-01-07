@@ -314,6 +314,9 @@ export async function joinCircleById(
 
     const circle = circleSnapshot.val() as Circle;
 
+    // For backward compatibility, default to "habit" mode if not set
+    const circleMode = circle.mode || "habit";
+
     // 2. Check if user is already a member
     const membershipSnapshot = await get(getUserCircleRef(uid, circleId));
 
@@ -322,7 +325,7 @@ export async function joinCircleById(
     }
 
     // 3. Handle based on circle mode
-    if (circle.mode === "habit") {
+    if (circleMode === "habit") {
       if (!circle.publicHabitTemplate) {
         return { success: false, error: "Invalid circle configuration" };
       }
@@ -388,7 +391,7 @@ export async function joinCircleById(
       await incrementCircleMemberCount(circleId);
 
       return { success: true, habitId };
-    } else if (circle.mode === "target") {
+    } else if (circleMode === "target") {
       if (!circle.publicTargetTemplate) {
         return { success: false, error: "Invalid circle configuration" };
       }
@@ -1139,6 +1142,9 @@ export async function getCircleMembers(
     const circle = circleSnapshot.val() as Circle;
     const members: any[] = [];
 
+    // For backward compatibility, default to "habit" mode if not set
+    const circleMode = circle.mode || "habit";
+
     // For private circles, get members from memberIds
     if (circle.type === "private" && circle.memberIds) {
       for (const memberUid of circle.memberIds) {
@@ -1154,7 +1160,7 @@ export async function getCircleMembers(
           const membership = membershipSnapshot.val() as UserCircleMembership;
 
           // Handle based on circle mode
-          if (circle.mode === "habit" && membership.habitId) {
+          if (circleMode === "habit" && membership.habitId) {
             const habitId = membership.habitId;
 
             // Get today's check-in status
@@ -1168,7 +1174,7 @@ export async function getCircleMembers(
               habitId,
               completedToday,
             });
-          } else if (circle.mode === "target" && membership.targetId) {
+          } else if (circleMode === "target" && membership.targetId) {
             const targetId = membership.targetId;
 
             // Get all target instances for this user's target

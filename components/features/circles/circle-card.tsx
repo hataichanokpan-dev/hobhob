@@ -9,7 +9,8 @@ interface CircleCardProps {
 export function CircleCard({ circle, onClick }: CircleCardProps) {
   const isPrivate = circle.type === "private";
   const memberCount = circle.memberCount || 0;
-  const isTarget = circle.mode === "target";
+  // For backward compatibility, default to "habit" mode if not set
+  const isTarget = (circle.mode || "habit") === "target";
 
   return (
     <button
@@ -34,7 +35,7 @@ export function CircleCard({ circle, onClick }: CircleCardProps) {
             {/* Mode Badge - Compact pill */}
             <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--color-brand)]/6 border border-[var(--color-brand)]/10">
               <span className="text-[11px] leading-none">
-                {isTarget ? "🎯" : "✅"}
+                {isTarget ? "🎯" : "🗓️"}
               </span>
             </div>
 
@@ -54,9 +55,9 @@ export function CircleCard({ circle, onClick }: CircleCardProps) {
 
         {/* Description - Optional */}
         {circle.description && (
-          <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+          <span className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
             {circle.description}
-          </p>
+          </span>
         )}
 
         {/* Footer: Member Count */}

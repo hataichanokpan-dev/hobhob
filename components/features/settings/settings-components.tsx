@@ -36,11 +36,11 @@ export function ProfileCard({ profile }: { profile: UserProfile | null }) {
           <h2 className="font-semibold text-lg truncate">
             {profile.displayName}
           </h2>
-          <p className="text-sm text-muted-foreground truncate">
+          <span className="text-sm text-muted-foreground truncate">
             {profile.email}
-          </p>
+          </span>
           <p className="text-xs text-muted-foreground mt-1">
-            Joined {new Date(profile.createdAt).toLocaleDateString()}
+            <span className="text-xs">Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
           </p>
         </div>
       </div>

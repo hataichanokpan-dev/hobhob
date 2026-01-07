@@ -165,7 +165,7 @@ export default function ProfilePage() {
                   {userProfile?.displayName}
                   <Sparkles className="w-4 h-4 text-yellow-400" />
                 </h2>
-                <p className="text-sm text-muted-foreground">{userProfile?.email}</p>
+                <span className="text-sm text-muted-foreground">{userProfile?.email}</span>
               </div>
             </div>
 
@@ -190,7 +190,7 @@ export default function ProfilePage() {
                   <Target className="w-4 h-4 text-purple-500" />
                   <p className="text-lg font-bold text-purple-500">{targets.filter((t) => !t.isArchived).length}</p>
                 </div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Targets</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("profile.targets")}</p>
               </div>
             </div>
           </div>

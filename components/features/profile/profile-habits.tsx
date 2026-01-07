@@ -39,7 +39,7 @@ export function ProfileHabits({ habits, checkins = {}, timezone = "UTC" }: Profi
         <div className="flex items-center gap-2">
           <div className="relative">
             <Trophy className="w-4 h-4 text-[var(--color-brand)]" />
-            <Sparkles className="w-3 h-3 text-yellow-400 absolute -top-1 -right-1" />
+            
           </div>
           <h3 className="text-sm font-semibold">{t("profile.topHabits")}</h3>
         </div>
@@ -57,7 +57,7 @@ export function ProfileHabits({ habits, checkins = {}, timezone = "UTC" }: Profi
       <div className="flex items-center gap-2">
         <div className="relative">
           <Trophy className="w-4 h-4 text-[var(--color-brand)]" />
-          <Sparkles className="w-3 h-3 text-yellow-400 absolute -top-1 -right-1" />
+           
         </div>
         <h3 className="text-sm font-semibold">{t("profile.topHabits")}</h3>
       </div>
@@ -109,9 +109,9 @@ export function ProfileHabits({ habits, checkins = {}, timezone = "UTC" }: Profi
                   {habit.name}
                   {isFirstPlace && <Sparkles className="w-3 h-3 text-yellow-400" />}
                 </h4>
-                <p className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {habit.frequency || "Daily"}
-                </p>
+                </span>
               </div>
 
               {/* Streak with flame animation */}

@@ -117,9 +117,9 @@ export function HabitListCard({
           </div>
 
           {habit.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+            <span className="text-xs text-muted-foreground line-clamp-2 mb-2">
               {habit.description}
-            </p>
+            </span>
           )}
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground">

@@ -42,7 +42,7 @@ export function ProfileCircles({ circles, isLoading }: ProfileCirclesProps) {
         </div>
         <div className="surface p-6 rounded-2xl text-center border-2 border-dashed border-[var(--color-border)]">
           <div className="text-4xl mb-2">🌐</div>
-          <p className="text-sm text-muted-foreground">{t("profile.noCircles")}</p>
+          <span className="text-sm text-muted-foreground">{t("profile.noCircles")}</span>
           <p className="text-xs text-muted-foreground mt-1">Join a community to grow together!</p>
         </div>
       </div>
@@ -54,7 +54,7 @@ export function ProfileCircles({ circles, isLoading }: ProfileCirclesProps) {
       <div className="flex items-center gap-2">
         <div className="relative">
           <Users className="w-4 h-4 text-[var(--color-brand)]" />
-          <Sparkles className="w-3 h-3 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
+          
         </div>
         <h3 className="text-sm font-semibold">{t("profile.myCircles")}</h3>
       </div>
@@ -76,20 +76,18 @@ export function ProfileCircles({ circles, isLoading }: ProfileCirclesProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm truncate">{circle.name}</h4>
-                <p className="text-xs text-muted-foreground truncate">
+                <span className="text-xs text-muted-foreground truncate">
                   {circle.description || t("profile.noDescription")}
-                </p>
+                </span>
               </div>
               <div className="text-right">
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex items-center justify-end gap-1 mb-5">
                   <Users className="w-3 h-3 text-[var(--color-brand)]" />
                   <p className="text-sm font-bold text-[var(--color-brand)]">
                     {circle.memberCount || 0}
                   </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  {t("profile.members")}
-                </p>
+                
               </div>
             </div>
           </div>

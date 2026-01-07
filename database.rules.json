@@ -1,11 +1,13 @@
 {
   "rules": {
     "users": {
-      // Allow authenticated users to read public profile data for leaderboard
+      // Allow authenticated users to read public profile data for leaderboard and circles
       ".read": "auth != null",
       "$uid": {
         ".write": "auth != null && auth.uid == $uid",
         "profile": {
+          // Allow reading public profile data for all authenticated users (needed for circles, leaderboard, etc.)
+          ".read": "auth != null",
           ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])"
         },
         "habits": {
@@ -33,8 +35,9 @@
           }
         },
         "circles": {
-          // Users can read their own circle memberships
-          ".read": "auth != null && auth.uid == $uid",
+          // Allow reading circle memberships (needed for private circle member lists)
+          // Only contains circleId, joinedAt, and habitId/targetId - no sensitive data
+          ".read": "auth != null",
           // Users can write their own circle memberships
           ".write": "auth != null && auth.uid == $uid",
           "$circleId": {

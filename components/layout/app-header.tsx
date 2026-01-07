@@ -47,10 +47,10 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                 </span>
                 <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
               </h1>
-              <p className="text-[10px] text-muted-foreground -mt-0.5 leading-tight flex items-center gap-0.5">
+              <span className="text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-0.5">
                 {t("app.tagline")}
                  
-              </p>
+              </span>
             </div>
           </div>
 
