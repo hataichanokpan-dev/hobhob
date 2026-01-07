@@ -40,7 +40,7 @@ export default function DocPage() {
   return (
     <div className="min-h-screen pb-24 bg-gradient-to-b from-[var(--color-background)] via-[var(--color-muted)]/10 to-[var(--color-muted)]/20">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2 sticky top-0 z-10 bg-[var(--color-background)]/80 backdrop-blur-xl">
+      <div className="px-4 pt-4  sticky top-0 z-10 bg-[var(--color-background)]/80 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -52,7 +52,7 @@ export default function DocPage() {
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[var(--color-brand)]" />
             <h1 className="text-xl font-semibold">{docTranslations.title}</h1>
-            <Sparkles className="w-4 h-4 text-yellow-400" />
+             
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1 ml-8">
@@ -65,8 +65,7 @@ export default function DocPage() {
         <div className="surface p-6 rounded-3xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[var(--color-brand)]/20 to-purple-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-4xl animate-bounce">🎉</span>
+            <div className="flex items-center gap-2 mb-2">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-[var(--color-brand)] to-purple-500 bg-clip-text text-transparent">
                 {docTranslations.welcome.title}
               </h2>
@@ -169,9 +168,9 @@ export default function DocPage() {
         {/* Footer CTA */}
         <div className="text-center p-6">
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <Sparkles className="w-4 h-4 text-[var(--color-brand)]" />
+             
             <span>Ready to start? Small steps lead to big changes! 🚀</span>
-            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+           
           </div>
         </div>
       </div>

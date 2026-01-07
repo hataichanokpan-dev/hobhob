@@ -163,7 +163,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                   {t("nav.menu")}
                    
                 </h2>
-                <p className="text-xs text-muted-foreground">{t("nav.navigateYourApp")}</p>
+                <span className="text-xs text-muted-foreground">{t("nav.navigateYourApp")}</span>
               </div>
             </div>
             <button
@@ -201,7 +201,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
                     {userProfile.displayName}
                      
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
+                  <span className="text-xs text-muted-foreground truncate">{userProfile.email}</span>
                 </div>
                 <User className="w-5 h-5 text-[var(--color-brand)] group-hover:scale-110 transition-transform" />
               </div>
