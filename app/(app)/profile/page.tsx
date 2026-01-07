@@ -131,7 +131,7 @@ export default function ProfilePage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[var(--color-brand)] animate-pulse" />
+            
             <h1 className="text-xl font-semibold">{t("profile.title")}</h1>
           </div>
         </div>
@@ -158,9 +158,7 @@ export default function ProfilePage() {
                     {userProfile?.displayName?.charAt(0).toUpperCase() || "U"}
                   </div>
                 )}
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#33CC33] rounded-full flex items-center justify-center border-2 border-[var(--color-background)]">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
+                
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold flex items-center gap-2">
