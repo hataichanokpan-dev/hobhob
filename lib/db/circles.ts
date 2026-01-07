@@ -820,6 +820,7 @@ export async function getCircleMembers(
 
 /**
  * Send encouragement emoji to a member
+ * Users can only send 1 emoji per emoji type per day to each recipient
  */
 export async function sendEncouragement(
   fromUserId: string,
@@ -828,7 +829,30 @@ export async function sendEncouragement(
   emoji: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const encouragementId = `${fromUserId}_${toUserId}_${Date.now()}`;
+    // Check if user has already sent this emoji to this recipient today
+    const encouragementsRef = getCircleEncouragementsRef(circleId);
+    const encouragementsSnapshot = await get(encouragementsRef);
+
+    if (encouragementsSnapshot.exists()) {
+      const encouragements = encouragementsSnapshot.val();
+      const today = Date.now();
+      const oneDayAgo = today - 24 * 60 * 60 * 1000;
+
+      // Check if user already sent this specific emoji to this recipient today
+      const alreadySent = Object.values(encouragements).some(
+        (enc: any) =>
+          enc.fromUserId === fromUserId &&
+          enc.toUserId === toUserId &&
+          enc.emoji === emoji &&
+          enc.createdAt > oneDayAgo
+      );
+
+      if (alreadySent) {
+        return { success: false, error: "You already sent this emoji today" };
+      }
+    }
+
+    const encouragementId = `${fromUserId}_${toUserId}_${emoji}_${Date.now()}`;
     const encouragementRef = ref(database, `circles/${circleId}/encouragements/${encouragementId}`);
 
     const encouragement: any = {
@@ -856,6 +880,34 @@ export async function sendEncouragement(
     console.error("Error sending encouragement:", error);
     return { success: false, error: "Failed to send encouragement" };
   }
+}
+
+/**
+ * Get emojis that a user has sent to a recipient today
+ */
+export function getEmojisSentToUserToday(
+  encouragements: Record<string, any> | null,
+  fromUserId: string,
+  toUserId: string
+): string[] {
+  if (!encouragements) return [];
+
+  const today = Date.now();
+  const oneDayAgo = today - 24 * 60 * 60 * 1000;
+
+  const sentEmojis: string[] = [];
+  for (const enc of Object.values(encouragements)) {
+    const encouragement = enc as any;
+    if (
+      encouragement.fromUserId === fromUserId &&
+      encouragement.toUserId === toUserId &&
+      encouragement.createdAt > oneDayAgo
+    ) {
+      sentEmojis.push(encouragement.emoji);
+    }
+  }
+
+  return sentEmojis;
 }
 
 /**

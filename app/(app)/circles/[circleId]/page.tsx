@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Loader2, Copy, Check, Users, MoreVertical, Trash2, Edit, X, Heart, Sparkles, Trophy } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { getCircle, listenToCircleDailyStats, joinCircle, getUserCircleMemberships, regenerateInviteCode, deleteCircle, updateCircle, getCircleMembers, sendEncouragement, listenToCircleEncouragements, getTodaysEncouragements } from "@/lib/db/circles";
+import { getCircle, listenToCircleDailyStats, joinCircle, getUserCircleMemberships, regenerateInviteCode, deleteCircle, updateCircle, getCircleMembers, sendEncouragement, listenToCircleEncouragements, getTodaysEncouragements, getEmojisSentToUserToday } from "@/lib/db/circles";
 import { useUserStore } from "@/store/use-user-store";
 import { getTodayDateString } from "@/lib/utils/date";
 import type { Circle, CircleDailyStats } from "@/types";
@@ -139,7 +139,11 @@ export default function CircleDetailPage() {
     if (!user || !circle) return;
 
     try {
-      await sendEncouragement(user.uid, toUserId, circleId, emoji);
+      const result = await sendEncouragement(user.uid, toUserId, circleId, emoji);
+      if (!result.success && result.error) {
+        // Optionally show error to user
+        console.log(result.error);
+      }
     } catch (err) {
       console.error("Error sending encouragement:", err);
     }
@@ -148,6 +152,11 @@ export default function CircleDetailPage() {
   const getMemberEncouragements = (memberUid: string) => {
     if (!encouragements) return [];
     return getTodaysEncouragements(encouragements, memberUid);
+  };
+
+  const getEmojisSentByCurrentUser = (toUserId: string) => {
+    if (!user || !encouragements) return [];
+    return getEmojisSentToUserToday(encouragements, user.uid, toUserId);
   };
 
   const handleJoin = async () => {
@@ -449,6 +458,7 @@ export default function CircleDetailPage() {
               <div className="space-y-2">
                 {members.map((member) => {
                   const memberEncouragements = getMemberEncouragements(member.uid);
+                  const sentEmojis = getEmojisSentByCurrentUser(member.uid);
                   const isCurrentUser = user?.uid === member.uid;
 
                   return (
@@ -502,18 +512,31 @@ export default function CircleDetailPage() {
                         {/* Encouragement Action - Only show for other members */}
                         {!isCurrentUser && (
                           <div className="flex gap-1.5">
-                            {ENCOURAGEMENT_EMOJIS.slice(0, 3).map((emoji, idx) => (
-                              <button
-                                key={emoji}
-                                onClick={() => handleSendEncouragement(member.uid, emoji)}
-                                className="group relative w-9 h-9 rounded-full bg-[var(--color-surface)] hover:bg-gradient-to-br hover:from-[var(--color-brand)] hover:to-[var(--color-brand)]/80 flex items-center justify-center text-base transition-all hover:scale-110 active:scale-95"
-                                style={{ animationDelay: `${idx * 50}ms` }}
-                              >
-                                <span className="group-hover:scale-110 transition-transform">{emoji}</span>
-                                {/* Ripple effect hint */}
-                                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 bg-current scale-0 group-hover:scale-150 transition-transform" />
-                              </button>
-                            ))}
+                            {ENCOURAGEMENT_EMOJIS.slice(0, 3).map((emoji, idx) => {
+                              const isSent = sentEmojis.includes(emoji);
+                              return (
+                                <button
+                                  key={emoji}
+                                  onClick={() => !isSent && handleSendEncouragement(member.uid, emoji)}
+                                  disabled={isSent}
+                                  className={`group relative w-9 h-9 rounded-full flex items-center justify-center text-base transition-all ${
+                                    isSent
+                                      ? "bg-[var(--color-brand)]/20 cursor-default opacity-60"
+                                      : "bg-[var(--color-surface)] hover:bg-gradient-to-br hover:from-[var(--color-brand)] hover:to-[var(--color-brand)]/80 hover:scale-110 active:scale-95"
+                                  }`}
+                                  style={{ animationDelay: `${idx * 50}ms` }}
+                                  title={isSent ? "Already sent today" : undefined}
+                                >
+                                  <span className="group-hover:scale-110 transition-transform">{emoji}</span>
+                                  {!isSent && (
+                                    <>
+                                      {/* Ripple effect hint */}
+                                      <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 bg-current scale-0 group-hover:scale-150 transition-transform" />
+                                    </>
+                                  )}
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
