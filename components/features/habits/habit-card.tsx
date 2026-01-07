@@ -117,9 +117,9 @@ export function HabitCard({ habit, checked, streak = 0, onToggle }: HabitCardPro
             </h3>
 
             {habit.description && (
-              <p className="text-sm text-muted-foreground mb-2 line-clamp-1 leading-relaxed">
+              <span className="text-xs text-muted-foreground mb-2 line-clamp-2 leading-relaxed">
                 {habit.description}
-              </p>
+              </span>
             )}
 
             {/* Bottom Row: Streak + Frequency + Circle */}

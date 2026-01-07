@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target, User, Sparkles, Star } from "lucide-react";
+import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target, User, Sparkles, Star, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/use-user-store";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -101,6 +101,13 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
       path: "/stats",
       descriptionKey: "navDescriptions.stats",
       emoji: "📊",
+    },
+    {
+      icon: BookOpen,
+      labelKey: "nav.doc",
+      path: "/doc",
+      descriptionKey: "navDescriptions.doc",
+      emoji: "📖",
     },
     {
       icon: Settings,
