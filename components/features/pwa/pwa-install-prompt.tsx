@@ -34,30 +34,27 @@ export function PWAInstallPrompt({ onClose }: PWAInstallPromptProps) {
       className="fixed bottom-20 left-4 right-4 z-50 max-w-sm mx-auto"
     >
       {/* Animated gradient border */}
-      <div className="relative rounded-3xl p-0.5 bg-gradient-to-r from-[var(--color-brand)] via-purple-500 to-[var(--color-brand)] bg-[length:200%_100%] animate-gradient-x">
+      <div className="relative rounded-3xl p-0.5 bg-[var(--color-brand)] via-purple-500 to-[var(--color-brand)] bg-[length:200%_100%] animate-gradient-x">
         <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-[var(--color-brand)]/20 blur-sm"></div>
 
         {/* Main card content */}
         <div className="relative surface rounded-3xl p-5 shadow-2xl">
-          {/* Sparkle decoration - top right */}
-          <div className="absolute top-3 right-3 animate-pulse">
-            <Sparkles className="w-4 h-4 text-yellow-400/70" />
-          </div>
+           
 
           {/* Header */}
           <div className="flex items-start justify-between gap-3 mb-4">
             <div className="flex items-center gap-3">
               {/* Icon with glow effect */}
               <div className="relative">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-brand)] to-purple-500 flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--color-brand)]  flex items-center justify-center shadow-lg">
                   <Download className="w-8 h-6 text-white" />
                 </div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--color-brand)] to-purple-500 blur-md opacity-50 animate-pulse"></div>
+                 
               </div>
               <div>
                 <h3 className="font-bold text-base flex items-center gap-1.5">
                   {t("pwaInstall.title")}
-                  <Sparkles className="w-4 h-4 text-yellow-400" />
+                  
                 </h3>
                 <span className="text-xs text-muted-foreground">
                   {t("pwaInstall.subtitle")}
@@ -86,7 +83,7 @@ export function PWAInstallPrompt({ onClose }: PWAInstallPromptProps) {
           {/* CTA Button */}
           <button
             onClick={handleClose}
-            className="w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-[var(--color-brand)] to-purple-500 text-white font-medium text-sm hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-brand)] text-white font-medium text-sm hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
           >
             {t("pwaInstall.gotIt")}
           </button>
@@ -104,7 +101,7 @@ function IOSInstructions({ browser }: { browser: string }) {
 
   if (browser !== "safari") {
     return (
-      <div className="p-3 rounded-xl bg-[var(--color-muted)] border border-[var(--color-brand)]/20">
+      <div className="p-3 rounded-xl bg-[var(--color-brand)] border border-[var(--color-brand)]/20">
         <p className="text-xs text-muted-foreground leading-relaxed">
           {t("pwaInstall.ios.notSafari")}
         </p>
@@ -123,7 +120,7 @@ function IOSInstructions({ browser }: { browser: string }) {
         </p>
       </div>
       <div className="flex items-start gap-2 p-2.5 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/10">
-        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+        <div className="w-6 h-6 rounded-lg bg-[var(--color-brand)] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
           <span className="text-[10px] font-bold text-white">
             +
           </span>
