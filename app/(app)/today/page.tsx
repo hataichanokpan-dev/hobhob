@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Plus, Calendar, Flame, Target, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { listenToHabits } from "@/lib/db";
+import {
+  listenToHabits,
+  listenToTargets,
+  listenToTargetInstances,
+} from "@/lib/db";
 import { habitsToArray } from "@/lib/db/habits";
+import {
+  targetsToArray,
+  targetInstancesToArray,
+  getActiveTargetInstances,
+  completeTargetInstance,
+} from "@/lib/db/targets";
 import { useTranslation } from "@/hooks/use-translation";
 import {
   listenToDateCheckins,
@@ -13,25 +23,58 @@ import {
   toggleHabitCheckin,
   getHabitCheckin,
 } from "@/lib/db/checkins";
-import { incrementCircleCompletionCount, listenToCircleDailyStats } from "@/lib/db/circles";
+import {
+  incrementCircleCompletionCount,
+  listenToCircleDailyStats,
+} from "@/lib/db/circles";
 import { getTodayDateString, formatReadableDate } from "@/lib/utils/date";
 import { filterHabitsForToday } from "@/lib/utils/habits";
 import { useUserStore } from "@/store/use-user-store";
+import { useTargetsStore } from "@/store/use-targets.store";
 import { HabitCard } from "@/components/features/habits/habit-card";
 import { HabitForm } from "@/components/features/habits/habit-form";
-import type { DayCheckins } from "@/types";
+import { TargetCard } from "@/components/features/targets/target-card";
+import { TargetDetail } from "@/components/features/targets/target-detail";
+import type {
+  DayCheckins,
+  Target as TargetType,
+  TargetInstance,
+} from "@/types";
 
 export default function TodayPage() {
   const router = useRouter();
   const { user, userProfile, habits, setHabits, setLoading } = useUserStore();
+  const {
+    targets,
+    instances,
+    activeInstances,
+    setTargets,
+    setInstances,
+    setActiveInstances,
+  } = useTargetsStore();
   const { t, tp } = useTranslation();
   const [checkins, setCheckins] = useState<DayCheckins | null>(null);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [showHabitForm, setShowHabitForm] = useState(false);
-  const [circleNotification, setCircleNotification] = useState<{ message: string; habitId: string } | null>(null);
+  const [circleNotification, setCircleNotification] = useState<{
+    message: string;
+    habitId: string;
+  } | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<{
+    target: TargetType;
+    instance: TargetInstance;
+  } | null>(null);
+
+  // Ref for targets section
+  const targetsSectionRef = useRef<HTMLDivElement>(null);
 
   // Get user's timezone or default to UTC
   const timezone = userProfile?.timezone || "UTC";
+
+  // Scroll to targets section
+  const scrollToTargets = useCallback(() => {
+    targetsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
   const today = getTodayDateString(timezone);
 
   // Load habits
@@ -65,6 +108,48 @@ export default function TodayPage() {
     };
   }, [user, today]);
 
+  // Load targets
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribeTargets = listenToTargets(user.uid, (targetsObj) => {
+      setTargets(targetsToArray(targetsObj));
+    });
+
+    const unsubscribeInstances = listenToTargetInstances(
+      user.uid,
+      (instancesObj) => {
+        setInstances(targetInstancesToArray(instancesObj));
+      }
+    );
+
+    return () => {
+      if (unsubscribeTargets) unsubscribeTargets();
+      if (unsubscribeInstances) unsubscribeInstances();
+    };
+  }, [user, setTargets, setInstances]);
+
+  // Generate active instances when targets or instances change
+  useEffect(() => {
+    if (!user || targets.length === 0) return;
+
+    const refreshInstances = async () => {
+      try {
+        const active = await getActiveTargetInstances(
+          user.uid,
+          targets,
+          instances,
+          timezone
+        );
+        setActiveInstances(active);
+      } catch (error) {
+        console.error("Failed to refresh active instances:", error);
+      }
+    };
+
+    refreshInstances();
+  }, [user, targets, instances, timezone, setActiveInstances]);
+
   // Handle check-in toggle with optimistic UI
   const handleToggle = useCallback(
     async (habitId: string, note?: string) => {
@@ -96,22 +181,29 @@ export default function TodayPage() {
           await incrementCircleCompletionCount(habit.circleId, today);
 
           // Fetch the updated circle stats to get completion count
-          const unsubscribe = listenToCircleDailyStats(habit.circleId, today, (stats) => {
-            const completedCount = stats?.completedCount || 1; // At least 1 (the user)
-            const peopleKey = completedCount === 1 ? "circleNotification.person" : "circleNotification.people";
-            setCircleNotification({
-              message: tp("circleNotification.completedWithYou", {
-                count: completedCount,
-                people: t(peopleKey),
-              }),
-              habitId,
-            });
+          const unsubscribe = listenToCircleDailyStats(
+            habit.circleId,
+            today,
+            (stats) => {
+              const completedCount = stats?.completedCount || 1; // At least 1 (the user)
+              const peopleKey =
+                completedCount === 1
+                  ? "circleNotification.person"
+                  : "circleNotification.people";
+              setCircleNotification({
+                message: tp("circleNotification.completedWithYou", {
+                  count: completedCount,
+                  people: t(peopleKey),
+                }),
+                habitId,
+              });
 
-            // Auto-hide notification after 3 seconds
-            setTimeout(() => {
-              setCircleNotification(null);
-            }, 3000);
-          });
+              // Auto-hide notification after 3 seconds
+              setTimeout(() => {
+                setCircleNotification(null);
+              }, 3000);
+            }
+          );
 
           // Clean up listener after 5 seconds
           setTimeout(() => unsubscribe(), 5000);
@@ -136,6 +228,32 @@ export default function TodayPage() {
 
   const handleHabitFormCancel = () => {
     setShowHabitForm(false);
+  };
+
+  // Handle target completion
+  const handleTargetComplete = async (instanceId: string) => {
+    if (!user) return;
+
+    try {
+      await completeTargetInstance(user.uid, instanceId);
+      // Remove the completed instance from activeInstances
+      setActiveInstances(activeInstances.filter((i) => i.id !== instanceId));
+    } catch (error) {
+      console.error("Failed to complete target:", error);
+    }
+  };
+
+  // Handle target card click (show detail)
+  const handleTargetCardClick = (
+    target: TargetType,
+    instance: TargetInstance
+  ) => {
+    setSelectedTarget({ target, instance });
+  };
+
+  // Handle target detail close
+  const handleTargetDetailClose = () => {
+    setSelectedTarget(null);
   };
 
   // Filter active habits for today based on frequency settings
@@ -185,6 +303,15 @@ export default function TodayPage() {
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-[var(--color-brand)]" />
                 <h1 className="text-2xl font-semibold">{t("today.title")}</h1>
+                {/* Active Targets Pill - Minimal & Clickable */}
+                {activeInstances.length > 0 && (
+                  <button
+                    onClick={scrollToTargets}
+                    className="px-2 py-0.5 rounded-full bg-[var(--color-brand)]/10 text-[var(--color-brand)] text-xs font-medium hover:bg-[var(--color-brand)]/20 transition-colors cursor-pointer"
+                  >
+                    🎯 {activeInstances.length}
+                  </button>
+                )}
               </div>
               <p className="text-muted-foreground text-sm">
                 {formatReadableDate(new Date(), timezone)}
@@ -192,7 +319,7 @@ export default function TodayPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Circles Button */}
+              {/* Circles Button
               <button
                 onClick={() => router.push("/circles")}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-muted)] hover:bg-[var(--color-muted)]/80 transition-colors"
@@ -200,7 +327,7 @@ export default function TodayPage() {
               >
                 <Users className="w-4 h-4 text-[var(--color-brand)]" />
                 <span className="text-sm font-medium">Circles</span>
-              </button>
+              </button>*/}
 
               {/* Completion Stats - Clean Design */}
               {todaysHabits.length > 0 && (
@@ -232,31 +359,45 @@ export default function TodayPage() {
           )}
 
           {/* Quick Stats Row - Professional */}
-          {todaysHabits.length > 0 && (
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
-                <Target className="w-4 h-4 mx-auto mb-1 text-[var(--color-brand)]" />
-                <p className="text-2xl font-semibold">{todaysHabits.length}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  {t("today.stats.today")}
-                </p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
-                <Flame className="w-4 h-4 mx-auto mb-1 text-[#ff6a00]" />
-                <p className="text-2xl font-semibold">{completedCount}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  {t("today.stats.done")}
-                </p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
-                <Target className="w-4 h-4 mx-auto mb-1 text-[#33CC33]" />
-                <p className="text-2xl font-semibold">
-                  {todaysHabits.length - completedCount}
-                </p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  {t("today.stats.left")}
-                </p>
-              </div>
+          {(todaysHabits.length > 0 || activeInstances.length > 0) && (
+            <div className={`mt-6 grid gap-4 ${todaysHabits.length > 0 ? "grid-cols-3" : "grid-cols-1"}`}>
+              {todaysHabits.length > 0 && (
+                <>
+                  <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
+                    <Target className="w-4 h-4 mx-auto mb-1 text-[var(--color-brand)]" />
+                    <p className="text-2xl font-semibold">{todaysHabits.length}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                      {t("today.stats.today")}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
+                    <Flame className="w-4 h-4 mx-auto mb-1 text-[#ff6a00]" />
+                    <p className="text-2xl font-semibold">{completedCount}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                      {t("today.stats.done")}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
+                    <Target className="w-4 h-4 mx-auto mb-1 text-[#33CC33]" />
+                    <p className="text-2xl font-semibold">
+                      {todaysHabits.length - completedCount}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                      {t("today.stats.left")}
+                    </p>
+                  </div>
+                </>
+              )}
+              {/* Active Targets Stats - Shows when no habits or as additional info */}
+              {activeInstances.length > 0 && todaysHabits.length === 0 && (
+                <div className="text-center p-3 rounded-lg bg-[var(--color-muted)]">
+                  <Target className="w-4 h-4 mx-auto mb-1 text-[var(--color-brand)]" />
+                  <p className="text-2xl font-semibold">{activeInstances.length}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                    {t("targets.title")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -292,6 +433,7 @@ export default function TodayPage() {
           </div>
         ) : todaysHabits.length > 0 ? (
           <div className="space-y-3">
+            <h3 className="text-lg font-semibold mb-2">{t("nav.habits")}</h3>
             {todaysHabits.map((habit) => (
               <HabitCard
                 key={habit.id}
@@ -303,9 +445,48 @@ export default function TodayPage() {
             ))}
           </div>
         ) : null}
+
+        {/* Targets Section */}
+        {activeInstances.length > 0 && (
+          <div ref={targetsSectionRef}>
+            <hr className="my-4 mx-4" />
+            <div className="surface p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold flex items-center gap-2">
+                  <span className="text-lg">🎯</span>
+                  {t("targets.title")}
+                </h2>
+                <button
+                  onClick={() => router.push("/targets")}
+                  className="text-xs text-muted-foreground hover:text-[var(--color-brand)] transition-colors"
+                >
+                  {t("targets.viewAll")}
+                </button>
+              </div>
+              <div className="space-y-3">
+                {activeInstances.map((instance) => {
+                  const target = targets.find(
+                    (t) => t.id === instance.targetId
+                  );
+                  if (!target) return null;
+                  return (
+                    <TargetCard
+                      key={instance.id}
+                      target={target}
+                      instance={instance}
+                      timezone={timezone}
+                      onComplete={handleTargetComplete}
+                      onClick={() => handleTargetCardClick(target, instance)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Floating Action Button - Fixed Position 
+      {/* Floating Action Button - Fixed Position
       {todaysHabits.length > 0 && (
         <button
           onClick={() => setShowHabitForm(true)}
@@ -316,6 +497,25 @@ export default function TodayPage() {
           <Plus className="w-6 h-6" />
         </button>
       )}*/}
+
+      {/* Target Detail Modal */}
+      {selectedTarget && (
+        <TargetDetail
+          target={selectedTarget.target}
+          instance={selectedTarget.instance}
+          timezone={timezone}
+          onClose={handleTargetDetailClose}
+          onUpdate={() => {
+            // Refresh active instances on update
+            getActiveTargetInstances(
+              user!.uid,
+              targets,
+              instances,
+              timezone
+            ).then(setActiveInstances);
+          }}
+        />
+      )}
     </>
   );
 }

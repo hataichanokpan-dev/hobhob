@@ -1,20 +1,18 @@
-# HobHob
+# 🎯 HobHob
 
 <div align="center">
 
-# 🎯 HobHob
+**A beautiful mobile-first habit & goal tracker with dark glassmorphism UI**
 
-**A beautiful mobile-first habit tracker with dark glassmorphism UI**
-
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**Build better habits, one day at a time.**
+**Build better habits, achieve your goals, one day at a time.**
 
-[Features](#-features) • [Live Demo](#-live-demo) • [Quick Start](#-quick-start) • [Documentation](#-documentation)
+[Features](#-features) • [Quick Start](#-quick-start) • [Screenshots](#-screenshots) • [Deployment](#-deployment)
 
 </div>
 
@@ -22,31 +20,45 @@
 
 ## ✨ Features
 
-### Core Functionality
+### 📋 Habit Tracking
+- ✅ **Daily Check-ins** - One-tap habit tracking with optimistic UI updates
+- 🎨 **Customization** - Personalize habits with custom icons and colors
+- 📅 **Smart Scheduling** - Set frequency (daily, weekly, weekends, etc.)
+- 🔥 **Streak Tracking** - Build and maintain consistency streaks
+- 📊 **Progress Visualization** - See your journey at a glance
 
-- 🔐 **Google Authentication** - Secure sign-in with Firebase Auth
-- ✅ **Habit Management** - Create, edit, and delete habits with custom icons and colors
-- ☑️ **Daily Check-ins** - One-tap habit tracking with optimistic UI updates
-- 📊 **Statistics Dashboard** - Track streaks, completion rates, and visualize progress
-- 📅 **Calendar Heatmap** - Visual 30-day calendar showing habit consistency
-- ⚙️ **User Settings** - Timezone selection, data export, account management
-- 📱 **Mobile-First Design** - Optimized for one-handed use on any device
-- 🌙 **Dark Glassmorphism UI** - Beautiful blur.io-inspired interface
+### 🎯 Goal Targets
+- 🎯 **Time-Based Goals** - Set targets with flexible time windows (weekly, monthly, custom)
+- 🔄 **Recurring Targets** - Create repeating goals that reset automatically
+- 📝 **Success Criteria** - Define what completion looks like for each target
+- 📈 **Progress Tracking** - Monitor your target completion over time
+- 🏆 **Achievement System** - Celebrate when you reach your goals
 
-### Technical Highlights
+### 👥 Social Circles
+- 👥 **Habit Circles** - Join circles to track habits together with friends
+- 🌍 **Public Circles** - Discover and join circles created by the community
+- 🔗 **Easy Sharing** - Share your habit circles with anyone via unique codes
+- 📊 **Group Progress** - See how many circle members completed habits today
 
-- ⚡ **Real-time Sync** - Firebase Realtime Database for instant updates
-- 🎨 **Tailwind CSS v4** - Modern, performance-optimized styling
+### 📊 Statistics & Insights
+- 📅 **30-Day Calendar** - Visual heatmap showing your consistency
+- 📈 **Completion Rates** - Track your overall success percentage
+- 📉 **Streak Analysis** - See your longest streaks and current runs
+- 🎨 **Beautiful Charts** - Visualize your progress with stunning graphics
+
+### ⚙️ User Experience
+- 🌐 **Multi-Language** - Full support for English and Thai
+- 🌍 **Timezone Aware** - Proper date handling across all time zones
+- 📱 **Mobile-First** - Optimized for one-handed use on any device
+- 🌙 **Dark Glassmorphism** - Beautiful blur.io-inspired interface
+- 🔔 **Smart Notifications** - Circle completion notifications
+
+### 🛠️ Technical
+- ⚡ **Real-time Sync** - Firebase Realtime Database for instant updates across devices
 - 💾 **PWA Support** - Install on home screen for native app experience
-- 🌍 **Timezone Aware** - Proper date handling across time zones
-- 🔒 **Security Rules** - Comprehensive Firebase security with validation
+- 🔒 **Secure** - Comprehensive Firebase security with validation
 - ♿ **Accessible** - WCAG compliant with keyboard navigation support
-
----
-
-## 🎮 Live Demo
-
-Coming soon to [hobhob.app](https://hobhob.app)
+- 🎨 **Tailwind CSS v4** - Modern, performance-optimized styling
 
 ---
 
@@ -55,9 +67,8 @@ Coming soon to [hobhob.app](https://hobhob.app)
 ### Prerequisites
 
 - **Node.js** 18+ ([nodejs.org](https://nodejs.org))
-- **npm** or **yarn** package manager
+- **npm** package manager
 - **Firebase** account ([firebase.google.com](https://firebase.google.com))
-- **GitHub** account (for Vercel deployment)
 
 ### 1. Clone & Install
 
@@ -72,12 +83,7 @@ npm install
 
 ### 2. Environment Setup
 
-```bash
-# Copy environment template
-cp .env.example .env.local
-```
-
-Edit `.env.local` with your Firebase configuration:
+Create a `.env.local` file with your Firebase configuration:
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
@@ -96,30 +102,22 @@ NEXT_PUBLIC_DEV_AUTH_BYPASS=true
 
 1. **Create Firebase Project**
    - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Click "Add project" and name it `hobhob`
+   - Click "Add project"
 
 2. **Enable Authentication**
    - Navigate to **Build** → **Authentication**
-   - Click "Get Started" → "Add new provider"
-   - Select **Google** and enable it
+   - Enable **Google** sign-in
 
 3. **Enable Realtime Database**
    - Navigate to **Build** → **Realtime Database**
-   - Click "Create Database"
-   - Start in **Test Mode** (we'll deploy proper rules next)
+   - Click "Create Database" in test mode
 
 4. **Deploy Security Rules**
-
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login to Firebase
-firebase login
-
-# Deploy security rules
-firebase deploy --only database:rules
-```
+   ```bash
+   npm install -g firebase-tools
+   firebase login
+   firebase deploy --only database:rules
+   ```
 
 ### 4. Run Development Server
 
@@ -138,12 +136,22 @@ npm start
 
 ---
 
-## 📚 Documentation
+## 📸 Screenshots
 
-- **[Step-by-Step Implementation Guide](STEP_BY_STEP_GUIDE.md)** - Learn how this project was built from scratch
-- **[Implementation Steps](IMPLEMENTATION_STEPS.md)** - Detailed breakdown of each development step
-- **[Testing Checklist](TESTING_CHECKLIST.md)** - Comprehensive testing guide before deployment
-- **[CLAUDE.md](CLAUDE.md)** - Project guidance for AI assistants
+### Today Page
+Track your daily habits and see active targets at a glance.
+
+### Habits Management
+Create, edit, and manage your habits with custom icons and colors.
+
+### Goals/Targets
+Set time-based goals with flexible windows and track your progress.
+
+### Statistics Dashboard
+Visualize your progress with beautiful charts and calendar heatmaps.
+
+### Circles
+Join circles and track habits together with friends and family.
 
 ---
 
@@ -151,7 +159,7 @@ npm start
 
 | Category | Technology | Purpose |
 |----------|-----------|---------|
-| **Framework** | [Next.js 16](https://nextjs.org/) | React framework with App Router |
+| **Framework** | [Next.js 15](https://nextjs.org/) | React framework with App Router |
 | **Language** | [TypeScript](https://www.typescriptlang.org/) | Type-safe development |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first CSS |
 | **State** | [Zustand](https://zustand-demo.pmnd.rs/) | Lightweight state management |
@@ -159,7 +167,7 @@ npm start
 | **Auth** | [Firebase Auth](https://firebase.google.com/docs/auth) | Google authentication |
 | **Dates** | [date-fns](https://date-fns.org/) + [date-fns-tz](https://github.com/marnusw/date-fns-tz) | Date & timezone handling |
 | **Icons** | [Lucide](https://lucide.dev/) | Beautiful icon library |
-| **Deployment** | [Vercel](https://vercel.com/) | Frontend hosting |
+| **Animations** | [Framer Motion](https://www.framer.com/motion/) | Smooth animations |
 
 ---
 
@@ -173,16 +181,23 @@ hobhob/
 │   ├── (app)/                 # Protected routes
 │   │   ├── today/             # Main: Daily check-ins
 │   │   ├── habits/            # Habit CRUD
+│   │   ├── targets/           # Goal targets
+│   │   ├── circles/           # Social circles
 │   │   ├── stats/             # Statistics dashboard
+│   │   ├── history/           # Calendar view
 │   │   └── settings/          # User settings
-│   ├── globals.css            # Master CSS with design tokens
-│   └── layout.tsx             # Root layout with providers
+│   └── globals.css            # Master CSS with design tokens
 │
 ├── components/
 │   ├── features/              # Feature-specific components
-│   │   ├── habits/            # Habit form, list, toggle
+│   │   ├── habits/            # Habit form, cards, toggle
+│   │   ├── targets/           # Target cards, forms, details
+│   │   ├── circles/           # Circle management
 │   │   ├── stats/             # Stats displays
 │   │   └── settings/          # Settings components
+│   ├── layout/                # Layout components
+│   │   ├── app-sidebar.tsx    # Main navigation
+│   │   └── bottom-nav.tsx     # Mobile bottom navigation
 │   ├── providers/             # React context providers
 │   └── ui/                    # Reusable UI components
 │
@@ -190,10 +205,19 @@ hobhob/
 │   ├── firebase/              # Firebase client initialization
 │   ├── auth/                  # Authentication utilities
 │   ├── db/                    # Database operations
+│   │   ├── habits.ts          # Habit CRUD
+│   │   ├── targets.ts         # Target CRUD
+│   │   ├── circles.ts         # Circle operations
+│   │   └── checkins.ts        # Check-in tracking
 │   └── utils/                 # Helper functions
+│       ├── date.ts            # Date utilities
+│       └── habits.ts         # Habit filtering
 │
 ├── store/
-│   └── use-user-store.ts      # Zustand user state
+│   ├── use-user-store.ts      # User state
+│   ├── use-habits-store.ts    # Habits state
+│   ├── use-targets.store.ts   # Targets state
+│   └── use-language-store.ts  # Language/i18n state
 │
 ├── types/
 │   └── index.ts               # TypeScript type definitions
@@ -213,20 +237,21 @@ hobhob/
 
 HobHob uses a custom dark glassmorphism design inspired by [blur.io](https://blur.io/) and [Bear.app](https://bear.app/).
 
-### Colors
+### Color Palette
 
 ```css
---color-background: #0a0a0b
---color-primary: #8b5cf6      /* Purple */
---color-accent: #ec4899       /* Pink */
+--color-background: #0a0a0b      /* Deep black */
+--color-surface: #111113          /* Card backgrounds */
+--color-brand: #FF6600           /* Primary orange accent */
+--color-border: rgba(255,255,255,0.1)
 ```
 
-### Components
+### Component Patterns
 
-- **Glass Card** - `bg-white/5 backdrop-blur-xl border-white/10`
-- **Primary Button** - Gradient purple to pink
-- **Check-in Toggle** - Circular with glow effect
-- **Bottom Navigation** - Fixed, glassmorphic
+- **Glass Card** - `bg-white/5 backdrop-blur-xl border border-white/10`
+- **Primary Button** - Orange gradient with glow effect
+- **Check-in Toggle** - Circular with smooth color transitions
+- **Navigation** - Fixed bottom nav with glassmorphic blur
 
 ---
 
@@ -235,17 +260,27 @@ HobHob uses a custom dark glassmorphism design inspired by [blur.io](https://blu
 HobHob implements comprehensive security through Firebase Realtime Database rules:
 
 - **User isolation** - Each user can only access their own data (`auth.uid == $uid`)
-- **Input validation** - All data is validated before writing
-- **Authentication required** - All routes require valid Firebase auth
+- **Circle separation** - Circle data properly isolated with validation
+- **Input validation** - All data is validated before writing to database
+- **Authentication required** - All protected routes require valid Firebase auth
 - **Type safety** - TypeScript prevents type-related vulnerabilities
 
-See [database.rules.json](database.rules.json) for the complete rules.
+See [database.rules.json](database.rules.json) for the complete security rules.
+
+---
+
+## 🌐 Internationalization (i18n)
+
+HobHob supports multiple languages:
+
+- **English** (en) - Full translation
+- **Thai** (th) - Full translation
+
+Language is stored in user profile and persists across sessions.
 
 ---
 
 ## 🧪 Testing
-
-Run the full test suite:
 
 ```bash
 # Type checking
@@ -257,8 +292,6 @@ npm run build
 # Linting
 npm run lint
 ```
-
-For manual testing, follow the [Testing Checklist](TESTING_CHECKLIST.md).
 
 ---
 
@@ -279,16 +312,21 @@ HobHob can be installed as a Progressive Web App:
 
 1. Push code to GitHub
 2. Import project in [Vercel Dashboard](https://vercel.com/new)
-3. Add environment variables from `.env.local`
+3. Add environment variables
 4. Deploy!
 
-### Manual Deployment
+### Environment Variables
 
-```bash
-# Build the project
-npm run build
+Make sure to add these in your Vercel project settings:
 
-# Deploy the .next folder to your hosting provider
+```
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_DATABASE_URL
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
 ```
 
 ---
@@ -298,33 +336,38 @@ npm run build
 ### v1.0 (Current) ✅
 
 - [x] Google Authentication
-- [x] Habit CRUD
-- [x] Daily check-ins
+- [x] Habit CRUD with custom icons/colors
+- [x] Daily check-ins with optimistic UI
 - [x] Statistics dashboard
-- [x] Settings page
+- [x] 30-day calendar heatmap
+- [x] Time-based targets/goals
+- [x] Social circles with sharing
+- [x] Multi-language support (EN/TH)
 - [x] PWA support
+- [x] Timezone awareness
 
 ### v1.1 (Planned)
 
 - [ ] Push notifications for reminders
 - [ ] Offline-first with background sync
+- [ ] Export data (CSV, PDF)
 - [ ] Dark/light mode toggle
-- [ ] Widget support
+- [ ] Widget support (iOS, Android)
 - [ ] Apple Watch companion
 
 ### v2.0 (Future)
 
-- [ ] Social features (share habits, groups)
-- [ ] Advanced analytics and insights
+- [ ] Advanced analytics and AI insights
 - [ ] Habit templates and challenges
 - [ ] Integration with health apps (Apple Health, Google Fit)
-- [ ] AI-powered habit suggestions
+- [ ] Social features (follow users, activity feed)
+- [ ] Gamification (achievements, leaderboards)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow our guidelines:
+Contributions are welcome! Please follow these guidelines:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -336,8 +379,8 @@ Contributions are welcome! Please follow our guidelines:
 
 - Follow the existing code style (see [CLAUDE.md](CLAUDE.md))
 - Test on mobile viewport (375px width minimum)
-- Ensure TypeScript compiles without errors
-- Add tests for new features
+- Ensure TypeScript compiles without errors (`npx tsc --noEmit`)
+- Test on both English and Thai languages
 - Update documentation as needed
 
 ---
@@ -358,21 +401,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
-
-- 📧 Email: support@hobhob.app
-- 🐛 [Report a Bug](https://github.com/hataichanokpan-dev/hobhob/issues)
-- 💡 [Feature Request](https://github.com/hataichanokpan-dev/hobhob/issues)
-- 📖 [Documentation](STEP_BY_STEP_GUIDE.md)
-
----
-
 <div align="center">
 
-**Built with ❤️ by the HobHob team**
+**Built with ❤️ by [hataichanokpan-dev](https://github.com/hataichanokpan-dev)**
 
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=flat&logo=twitter&logoColor=white)](https://twitter.com/hobhobapp)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/hataichanokpan-dev/hobhob)
+[![GitHub followers](https://img.shields.io/github/followers/hataichanokpan-dev?style=social)](https://github.com/hataichanokpan-dev)
 
 [⬆ Back to Top](#-hobhob)
 

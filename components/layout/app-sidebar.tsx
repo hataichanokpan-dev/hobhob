@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users } from "lucide-react";
+import { X, Calendar, List, BarChart3, Settings, LogOut, Sun, Moon, Monitor, Languages, ChevronDown, Globe, Clock, Trophy, Users, Target } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/use-user-store";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -64,6 +64,12 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
       labelKey: "nav.habits",
       path: "/habits",
       descriptionKey: "navDescriptions.habits",
+    },
+    {
+      icon: Target,
+      labelKey: "nav.targets",
+      path: "/targets",
+      descriptionKey: "navDescriptions.targets",
     },
     {
       icon: Users,
