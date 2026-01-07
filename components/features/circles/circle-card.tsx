@@ -34,8 +34,8 @@ export function CircleCard({ circle, onClick }: CircleCardProps) {
           {/* Private Badge - Minimal & Cute */}
           {isPrivate && (
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[var(--color-brand)]/5 border border-[var(--color-brand)]/10">
-              <Lock className="w-3 h-3 text-[var(--color-brand)]" strokeWidth={2.5} />
-              <span className="text-[10px] font-medium text-[var(--color-brand)] tracking-wide">PRIVATE</span>
+              <Lock className="w-3 h-4 text-[var(--color-brand)]" strokeWidth={2.5} />
+               
             </div>
           )}
         </div>
@@ -47,9 +47,9 @@ export function CircleCard({ circle, onClick }: CircleCardProps) {
 
         {/* Description - Optional */}
         {circle.description && (
-          <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
+          <span className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
             {circle.description}
-          </p>
+          </span>
         )}
 
         {/* Footer: Member Count - Clean & Professional */}

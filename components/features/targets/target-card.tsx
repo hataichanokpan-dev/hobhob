@@ -82,9 +82,9 @@ export function TargetCard({
 
           {/* Description */}
           {target.description && (
-            <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
+            <span className="text-[12px] text-muted-foreground line-clamp-3 mt-0.5">
               {target.description}
-            </p>
+            </span>
           )}
 
           {/* Compact Meta Info */}
@@ -125,7 +125,7 @@ export function TargetCard({
             {target.successCriteriaText && (
               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--color-brand)]/20 text-[var(--color-brand)] shadow-sm">
                 <span>✨</span>
-                <span className="line-clamp-1 max-w-[100px]">{target.successCriteriaText}</span>
+                <span className="line-clamp-1 max-w-[160px]">{target.successCriteriaText}</span>
               </div>
             )}
           </div>
@@ -138,9 +138,7 @@ export function TargetCard({
             onComplete(instance.id);
           }}
           className="flex-shrink-0 w-10 h-10 rounded-full text-white text-sm hover:scale-110 active:scale-95 transition-all duration-300 shadow-lg flex items-center justify-center relative overflow-hidden group/btn"
-          style={{
-            backgroundColor: targetColor,
-          }}
+          style={{ border: `1px solid ${targetColor}` }}
           aria-label="Mark done"
         >
           {/* Gradient overlay */}
