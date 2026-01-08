@@ -68,6 +68,22 @@ export const translations = {
       thai: "ไทย",
     },
 
+    // Loading Messages
+    loading: {
+      checkingAuth: "Checking Authentication",
+      preparingSpace: "Preparing your space",
+      loadingSpace: "Loading your space",
+      oneMoment: "One moment ✨",
+      pleaseWait: "Please wait...",
+      signingIn: "Signing in...",
+      loadingHabits: "Loading habits...",
+      loadingStats: "Loading statistics...",
+      joiningCircle: "Joining circle...",
+      creatingHabit: "Creating habit...",
+      savingChanges: "Saving changes...",
+      loadingProfile: "Loading profile...",
+    },
+
     // Auth
     auth: {
       signIn: "Sign In",
@@ -690,6 +706,22 @@ export const translations = {
       title: "ภาษา",
       english: "English",
       thai: "ไทย",
+    },
+
+    // Loading Messages
+    loading: {
+      checkingAuth: "กำลังตรวจสอบการยืนยันตัวตน",
+      preparingSpace: "กำลังเตรียมพื้นที่ของคุณ",
+      loadingSpace: "กำลังโหลดพื้นที่ของคุณ",
+      oneMoment: "รอสักครู่ ✨",
+      pleaseWait: "กรุณารอสักครู่...",
+      signingIn: "กำลังเข้าสู่ระบบ...",
+      loadingHabits: "กำลังโหลดนิสัย...",
+      loadingStats: "กำลังโหลดสถิติ...",
+      joiningCircle: "กำลังเข้าร่วมวงกลม...",
+      creatingHabit: "กำลังสร้างนิสัย...",
+      savingChanges: "กำลังบันทึกการเปลี่ยนแปลง...",
+      loadingProfile: "กำลังโหลดโปรไฟล์...",
     },
 
     // Auth

@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
 import { useUserStore } from "@/store/use-user-store";
 import { get } from "firebase/database";
 import { getProfileRef } from "@/lib/db";
 import type { UserProfile } from "@/types";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setUserProfile, setLoading } = useUserStore();
   const [initialized, setInitialized] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -86,81 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setUser, setUserProfile, setLoading]);
 
   if (!initialized) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-4 bg-[var(--color-background)]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="text-center space-y-6"
-        >
-          {/* Animated Logo */}
-          <motion.div
-            className="inline-flex items-center justify-center relative"
-            animate={{
-              y: [0, -10, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            {/* Glow effect */}
-            <motion.div
-              className="absolute inset-0 rounded-3xl blur-xl opacity-50"
-              style={{
-                background: "linear-gradient(135deg, #ff6a00, #ff9933, #ffb84d)",
-              }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <img
-              src="/icons/hobhob_v2.png"
-              alt="HobHob"
-              className="relative w-24 h-24 rounded-2xl shadow-lg"
-            />
-          </motion.div>
-
-          {/* Loading text with pulse */}
-          <motion.div
-            className="space-y-2"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <p className="text-lg font-medium">Loading your space...</p>
-            <p className="text-sm text-muted-foreground">One moment ✨</p>
-          </motion.div>
-
-          {/* Minimal loading dots */}
-          <div className="flex items-center justify-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2 h-2 rounded-full bg-[var(--color-brand)]"
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.5, 1, 0.5],
-                }}
-                transition={{
-                  duration: 1.2,
-                  repeat: Infinity,
-                  delay: i * 0.15,
-                  ease: "easeInOut",
-                }}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen message={t("loading.loadingSpace")} subtitle={t("loading.oneMoment")} />;
   }
 
   return <>{children}</>;

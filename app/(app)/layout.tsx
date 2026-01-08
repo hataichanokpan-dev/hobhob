@@ -3,11 +3,13 @@
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUserStore } from "@/store/use-user-store";
+import { onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { CuteBackground } from "@/components/layout/cute-background";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function AppLayout({
   children,
@@ -15,8 +17,10 @@ export default function AppLayout({
   children: ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const router = useRouter();
-  const { user, userProfile, isLoading } = useUserStore();
+  const { t } = useTranslation();
 
   const handleMenuClick = () => {
     setIsSidebarOpen(true);
@@ -26,33 +30,49 @@ export default function AppLayout({
     setIsSidebarOpen(false);
   };
 
-  // Redirect to sign-in if not authenticated or no profile
+  // Check authentication on mount
   useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
-        console.log("🔒 No user found, redirecting to /sign-in");
-        router.push("/sign-in");
-      } else if (!userProfile) {
-        console.log("🔒 User authenticated but no profile, redirecting to /sign-in");
+    let unsubscribe: (() => void) | null = null;
+    let isMounted = true;
+
+    // Check for dev user first
+    const devUser = getStoredDevUser();
+    if (devUser) {
+      console.log("🔧 Dev mode: User authenticated");
+      setIsAuthenticated(true);
+      setIsChecking(false);
+      return;
+    }
+
+    // Check Firebase auth state
+    unsubscribe = onAuthStateChange((authUser) => {
+      if (!isMounted) return;
+
+      if (authUser) {
+        console.log("✅ AppLayout: User authenticated");
+        setIsAuthenticated(true);
+        setIsChecking(false);
+      } else {
+        console.log("🔒 AppLayout: No user, redirecting to /sign-in");
+        setIsAuthenticated(false);
+        setIsChecking(false);
         router.push("/sign-in");
       }
-    }
-  }, [user, userProfile, isLoading, router]);
+    });
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) unsubscribe();
+    };
+  }, [router]);
 
   // Show loading while checking auth
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+  if (isChecking) {
+    return <LoadingScreen message={t("loading.checkingAuth")} subtitle={t("loading.pleaseWait")} />;
   }
 
-  // Don't render if no user or profile (will redirect via useEffect)
-  if (!user || !userProfile) {
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
     return null;
   }
 

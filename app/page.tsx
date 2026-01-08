@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUserStore } from "@/store/use-user-store";
 import { onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { useTranslation } from "@/hooks/use-translation";
 
 /**
  * Root page - redirects based on auth state
@@ -12,7 +13,7 @@ import { onAuthStateChange, getStoredDevUser } from "@/lib/auth/session";
  */
 export default function HomePage() {
   const router = useRouter();
-  const { setUser, setUserProfile, isLoading } = useUserStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -27,12 +28,11 @@ export default function HomePage() {
     }
 
     // Check Firebase auth state
-    unsubscribe = onAuthStateChange(async (user) => {
+    unsubscribe = onAuthStateChange((user) => {
       if (!isMounted) return;
 
       if (user) {
         console.log("✅ User already authenticated, redirecting to /today");
-        setUser(user);
         router.push("/today");
       } else {
         console.log("ℹ️ No authenticated user, redirecting to /sign-in");
@@ -44,15 +44,8 @@ export default function HomePage() {
       isMounted = false;
       if (unsubscribe) unsubscribe();
     };
-  }, [router, setUser]);
+  }, [router]);
 
   // Show loading while checking auth state
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center space-y-4">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    </div>
-  );
+  return <LoadingScreen message={t("loading.checkingAuth")} subtitle={t("loading.preparingSpace")} />;
 }
