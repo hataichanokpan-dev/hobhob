@@ -59,6 +59,14 @@
           "$instanceId": {
             ".validate": "newData.hasChildren(['targetId', 'windowKey', 'windowStart', 'windowEnd', 'status', 'createdAt'])"
           }
+        },
+        "pushSubscriptions": {
+          // Users can read and write their own push subscriptions
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          "$deviceId": {
+            ".validate": "newData.hasChildren(['enabled', 'subscription', 'userAgent', 'createdAt', 'updatedAt'])"
+          }
         }
       }
     },

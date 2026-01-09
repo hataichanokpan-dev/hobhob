@@ -292,3 +292,67 @@ export interface Targets {
 export interface TargetInstances {
   [instanceId: string]: TargetInstance;
 }
+
+// ============ Push Notification Types ============
+
+/**
+ * PushSubscriptionJSON interface from the Push API
+ */
+export interface PushSubscriptionJSON {
+  endpoint: string;
+  keys?: {
+    p256dh: string;
+    auth: string;
+  };
+  expirationTime?: number | null;
+}
+
+/**
+ * Push subscription data stored per device
+ */
+export interface PushSubscriptionData {
+  enabled: boolean;
+  subscription: PushSubscriptionJSON;
+  userAgent: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Push subscriptions storage structure per user
+ */
+export interface PushSubscriptions {
+  [deviceId: string]: PushSubscriptionData;
+}
+
+/**
+ * Daily notification payload
+ */
+export interface DailyNotificationPayload {
+  type: "daily-summary";
+  remainingHabits: number;
+  activeTargets: number;
+  date: string; // yyyy-mm-dd in user's timezone
+}
+
+/**
+ * Emoji notification payload for circle encouragements
+ */
+export interface EmojiNotificationPayload {
+  type: "emoji-encouragement";
+  fromUserId: string;
+  fromUserName: string;
+  emoji: string;
+  status: "Complete" | "Not complete";
+  circleId: string;
+  circleName?: string;
+}
+
+/**
+ * Push notification API response
+ */
+export interface PushApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}

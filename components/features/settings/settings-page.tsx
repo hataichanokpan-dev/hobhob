@@ -9,6 +9,7 @@ import { signOut } from "@/lib/auth/session";
 import { useRouter } from "next/navigation";
 import { ProfileCard, SettingItem, DangerButton } from "./settings-components";
 import { User, Mail, Clock, LogOut, Download, Trash2, ChevronRight, Users } from "lucide-react";
+import { PushNotificationSettings } from "./push-notification-settings";
 import type { UserProfile } from "@/types";
 import { getUserCircleMemberships, listenToUserCircles, membershipsToArray, leaveCircleById } from "@/lib/db/circles";
 import type { UserCircleMembership } from "@/types";
@@ -273,6 +274,9 @@ export function SettingsPage() {
             </select>
           }
         />
+
+        {/* Push Notifications */}
+        <PushNotificationSettings />
 
         {/* Export Data */}
         <SettingItem

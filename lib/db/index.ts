@@ -1,6 +1,6 @@
 import { database } from "@/lib/firebase/client";
 import { ref, set, get, update, remove, onValue, query, orderByChild, equalTo } from "firebase/database";
-import type { UserProfile, Habit, DayCheckins, HabitStats, Target, TargetInstance } from "@/types";
+import type { UserProfile, Habit, DayCheckins, HabitStats, Target, TargetInstance, PushSubscriptionData, PushSubscriptions } from "@/types";
 
 // Re-export Firebase database functions
 export { ref, update, remove, onValue };
@@ -259,4 +259,99 @@ export function listenToTargetInstances(
   return onValue(instancesRef, (snapshot) => {
     callback(snapshot.val());
   });
+}
+
+// ============ Push Notification Functions ============
+
+/**
+ * Get push subscriptions reference for a user
+ */
+export function getPushSubscriptionsRef(uid: string) {
+  return ref(database, `users/${uid}/pushSubscriptions`);
+}
+
+/**
+ * Get single push subscription reference
+ */
+export function getPushSubscriptionRef(uid: string, deviceId: string) {
+  return ref(database, `users/${uid}/pushSubscriptions/${deviceId}`);
+}
+
+/**
+ * Save or update push subscription
+ */
+export async function savePushSubscription(
+  uid: string,
+  deviceId: string,
+  data: PushSubscriptionData
+): Promise<void> {
+  await set(getPushSubscriptionRef(uid, deviceId), data);
+}
+
+/**
+ * Enable push subscription for a device
+ */
+export async function enablePushSubscription(
+  uid: string,
+  deviceId: string,
+  subscription: PushSubscription,
+  userAgent: string
+): Promise<void> {
+  const now = Date.now();
+  const subscriptionJson = subscription.toJSON();
+  const data: PushSubscriptionData = {
+    enabled: true,
+    subscription: {
+      endpoint: subscriptionJson.endpoint || "",
+      keys: subscriptionJson.keys as { p256dh: string; auth: string } | undefined,
+      expirationTime: subscriptionJson.expirationTime,
+    },
+    userAgent,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await savePushSubscription(uid, deviceId, data);
+}
+
+/**
+ * Disable push subscription for a device
+ */
+export async function disablePushSubscription(
+  uid: string,
+  deviceId: string
+): Promise<void> {
+  await update(getPushSubscriptionRef(uid, deviceId), {
+    enabled: false,
+    updatedAt: Date.now(),
+  });
+}
+
+/**
+ * Get all push subscriptions for a user
+ */
+export async function getPushSubscriptions(
+  uid: string
+): Promise<PushSubscriptions | null> {
+  const snapshot = await get(getPushSubscriptionsRef(uid));
+  return snapshot.val();
+}
+
+/**
+ * Get enabled push subscriptions for a user
+ */
+export async function getEnabledPushSubscriptions(
+  uid: string
+): Promise<PushSubscriptions> {
+  const all = await getPushSubscriptions(uid);
+  const enabled: PushSubscriptions = {};
+
+  if (all) {
+    for (const [deviceId, data] of Object.entries(all)) {
+      if (data.enabled) {
+        enabled[deviceId] = data;
+      }
+    }
+  }
+
+  return enabled;
 }

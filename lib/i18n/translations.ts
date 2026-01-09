@@ -331,6 +331,15 @@ export const translations = {
       timezone: {
         label: "Timezone",
       },
+      pushNotifications: {
+        title: "Daily 06:00 Summary",
+        description: "Receive a daily push notification at 06:00 with your remaining habits and active targets",
+        enabled: "Enabled - You'll receive daily reminders",
+        disabled: "Disabled - You won't receive reminders",
+        enable: "Enable",
+        disable: "Disable",
+        loading: "Processing...",
+      },
       export: {
         label: "Export Data",
         description: "Download all your data as JSON",
@@ -970,6 +979,15 @@ export const translations = {
       description: "จัดการบัญชีของคุณ",
       timezone: {
         label: "โซนเวลา",
+      },
+      pushNotifications: {
+        title: "สรุปประจำวัน 06:00 น.",
+        description: "รับการแจ้งเตือนแบบพุชประจำวันเวลา 06:00 น. พร้อมนิสัยที่เหลือและเป้าหมายที่กำลังดำเนินอยู่",
+        enabled: "เปิดใช้งานแล้ว - คุณจะได้รับการแจ้งเตือนประจำวัน",
+        disabled: "ปิดใช้งาน - คุณจะไม่ได้รับการแจ้งเตือน",
+        enable: "เปิดใช้งาน",
+        disable: "ปิดใช้งาน",
+        loading: "กำลังประมวลผล...",
       },
       export: {
         label: "ส่งออกข้อมูล",

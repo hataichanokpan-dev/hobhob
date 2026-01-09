@@ -7,6 +7,7 @@ import { getCircle, listenToCircleDailyStats, joinCircle, getUserCircleMembershi
 import { useUserStore } from "@/store/use-user-store";
 import { useTranslation } from "@/hooks/use-translation";
 import { getTodayDateString } from "@/lib/utils/date";
+import { sendEmojiPushNotification } from "@/lib/push/push-client";
 import type { Circle, CircleDailyStats } from "@/types";
 
 const ENCOURAGEMENT_EMOJIS = ["🔥", "💪", "🌱", "⭐", "👏", "💯"];
@@ -145,7 +146,15 @@ export default function CircleDetailPage() {
 
     try {
       const result = await sendEncouragement(user.uid, toUserId, circleId, emoji);
-      if (!result.success && result.error) {
+      if (result.success) {
+        // Send push notification to the recipient
+        await sendEmojiPushNotification({
+          toUserId,
+          circleId,
+          circleName: circle.name,
+          emoji,
+        });
+      } else if (result.error) {
         // Optionally show error to user
         console.log(result.error);
       }
