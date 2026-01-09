@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, BellOff, Loader2 } from "lucide-react";
+import { Bell, BellOff, Loader2, Sparkles, Smartphone, Check } from "lucide-react";
 import { useUserStore } from "@/store/use-user-store";
 import { useTranslation } from "@/hooks/use-translation";
 import {
@@ -25,6 +25,38 @@ interface PushStatus {
   anyEnabled?: boolean;
   totalDevices?: number;
   enabledDevices?: number;
+}
+
+// Animated Toggle Switch Component
+function ToggleSwitch({
+  enabled,
+  onToggle,
+  isDisabled,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+  isDisabled: boolean;
+}) {
+  return (
+    <button
+      onClick={onToggle}
+      disabled={isDisabled}
+      className={`relative w-14 h-8 rounded-full transition-all duration-300 ease-out ${
+        enabled
+          ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-lg shadow-violet-500/30"
+          : "bg-white/10 hover:bg-white/15"
+      } ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+      aria-label={enabled ? "Disable notifications" : "Enable notifications"}
+    >
+      <span
+        className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 ease-out ${
+          enabled ? "left-7" : "left-1"
+        } ${enabled ? "flex items-center justify-center" : ""}`}
+      >
+        {enabled && <Check className="w-4 h-4 text-violet-500" strokeWidth={3} />}
+      </span>
+    </button>
+  );
 }
 
 export function PushNotificationSettings() {
@@ -199,62 +231,101 @@ export function PushNotificationSettings() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="surface p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-[var(--color-brand)]" />
-          <h3 className="font-semibold">{t("settings.pushNotifications.title")}</h3>
+      <div className="surface p-5 space-y-4 relative overflow-hidden">
+        {/* Decorative gradient orb */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-full blur-3xl" />
+
+        <div className="flex items-center gap-3 relative">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full blur-lg opacity-50 animate-pulse" />
+            <Bell className="w-6 h-6 text-violet-400 relative" />
+          </div>
+          <h3 className="font-semibold text-lg">{t("settings.pushNotifications.title")}</h3>
         </div>
-        <div className="flex items-center justify-center py-4">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="w-6 h-6 animate-spin text-violet-400" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="surface p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {pushStatus?.enabled ? (
-            <Bell className="w-5 h-5 text-[var(--color-brand)]" />
-          ) : (
-            <BellOff className="w-5 h-5 text-muted-foreground" />
-          )}
+    <div className="surface p-5 space-y-4 relative overflow-hidden">
+      {/* Decorative gradient orbs */}
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-fuchsia-500/20 to-violet-500/20 rounded-full blur-3xl" />
+
+      {/* Header with animated icon */}
+      <div className="flex items-center justify-between relative">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            {pushStatus?.enabled && (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full blur-lg opacity-50 animate-pulse" />
+                <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-400 animate-bounce" />
+              </>
+            )}
+            {pushStatus?.enabled ? (
+              <Bell className="w-6 h-6 text-violet-400 relative" />
+            ) : (
+              <BellOff className="w-6 h-6 text-white/30 relative" />
+            )}
+          </div>
           <div>
-            <h3 className="font-semibold">{t("settings.pushNotifications.title")}</h3>
-            <span className="text-sm text-muted-foreground">
-              {pushStatus?.enabled
-                ? t("settings.pushNotifications.enabled")
-                : t("settings.pushNotifications.disabled")}
-            </span>
+            <h3 className="font-semibold text-lg">{t("settings.pushNotifications.title")}</h3>
+            <p className="text-sm text-white/50 flex items-center gap-1.5">
+              {pushStatus?.enabled ? (
+                <>
+                  <Smartphone className="w-3.5 h-3.5 text-violet-400" />
+                  {t("settings.pushNotifications.enabled")}
+                </>
+              ) : (
+                t("settings.pushNotifications.disabled")
+              )}
+            </p>
           </div>
         </div>
 
-        {!isToggling && (
-          <button
-            onClick={pushStatus?.enabled ? handleDisablePush : handleEnablePush}
-            className="text-sm px-4 py-2 rounded-lg bg-[var(--color-brand)] text-[var(--color-background)] hover:opacity-90 disabled:opacity-50 transition-opacity"
-            disabled={isToggling}
-          >
-            {pushStatus?.enabled
-              ? t("settings.pushNotifications.disable")
-              : t("settings.pushNotifications.enable")}
-          </button>
-        )}
+        {/* Toggle Switch */}
+        <ToggleSwitch
+          enabled={pushStatus?.enabled || false}
+          onToggle={pushStatus?.enabled ? handleDisablePush : handleEnablePush}
+          isDisabled={isToggling}
+        />
+      </div>
 
-        {isToggling && (
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {t("settings.pushNotifications.loading")}
-            </span>
+      {/* Loading overlay */}
+      {isToggling && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex items-center justify-center gap-3 animate-in fade-in">
+          <Loader2 className="w-5 h-5 animate-spin text-violet-400" />
+          <span className="text-sm text-white/80">
+            {t("settings.pushNotifications.loading")}
+          </span>
+        </div>
+      )}
+
+      {/* Description with cute styling */}
+      <div className="relative bg-white/5 rounded-xl p-4 border border-white/10">
+        <p className="text-xs text-white/60 leading-relaxed">
+          {t("settings.pushNotifications.description")}
+        </p>
+        {pushStatus?.enabled && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-violet-400">
+            <Check className="w-3.5 h-3.5" strokeWidth={3} />
+            <span>You'll receive daily reminders at 6:00 AM</span>
           </div>
         )}
       </div>
 
-      <span className="text-xs text-muted-foreground block">
-        {t("settings.pushNotifications.description")}
-      </span>
+      {/* Device info */}
+      {pushStatus?.totalDevices !== undefined && pushStatus.totalDevices > 0 && (
+        <div className="flex items-center gap-2 text-xs text-white/40">
+          <Smartphone className="w-3 h-3" />
+          <span>
+            {pushStatus.enabledDevices} of {pushStatus.totalDevices} device{pushStatus.totalDevices > 1 ? "s" : ""} enabled
+          </span>
+        </div>
+      )}
     </div>
   );
 }
