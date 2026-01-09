@@ -1,0 +1,23 @@
+name: Daily Push Notifications
+
+on:
+  # Run every hour at minute 0
+  schedule:
+    - cron: '0 * * * *'
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  daily-push:
+    name: Send Daily Push Notifications
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call daily push API
+        run: |
+          curl -X POST "https://hobhob-8cacb.vercel.app/api/cron/daily-push" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
