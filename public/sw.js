@@ -39,13 +39,25 @@ self.addEventListener("push", (event) => {
   }
 
   const title = payload.title || "HobHob";
+  const notificationType = payload.data?.type || "default";
+
+  // Customize notification based on type
   const options = {
     body: payload.body || "You have new updates",
     icon: payload.icon || "/icons/icon-192x192.png",
     badge: payload.badge || "/icons/badge-72x72.png",
-    tag: "hobhob-daily",
+    tag: notificationType === "emoji-encouragement"
+      ? `emoji-${payload.data?.fromUserId}-${Date.now()}`
+      : "hobhob-daily",
     renotify: true,
     requireInteraction: false,
+    silent: false,
+    // Add vibration pattern for better feel
+    vibrate: notificationType === "emoji-encouragement"
+      ? [200, 100, 200] // Two short vibrations for emoji
+      : [300], // Single vibration for daily
+    // Add timestamp for better UX
+    timestamp: Date.now(),
     data: payload.data || {}
   };
 
@@ -60,13 +72,26 @@ self.addEventListener("notificationclick", (event) => {
 
   event.notification.close();
 
-  const urlToOpen = new URL("/today", APP_ORIGIN).href;
+  // Determine URL based on notification type
+  const notificationData = event.notification.data || {};
+  let urlPath = "/today";
+
+  if (notificationData.type === "emoji-encouragement" && notificationData.circleId) {
+    // Navigate to the specific circle
+    urlPath = `/circles/${notificationData.circleId}`;
+  }
+
+  const urlToOpen = new URL(urlPath, APP_ORIGIN).href;
 
   event.waitUntil(
-    clients.matchAll({ type: "window" }).then((clientList) => {
-      // If a window is already open, focus it
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // If a window is already open, focus it and navigate if needed
       for (const client of clientList) {
-        if (client.url === urlToOpen && "focus" in client) {
+        if (client.url.startsWith(APP_ORIGIN) && "focus" in client) {
+          // Navigate to the correct URL if different
+          if (client.url !== urlToOpen && "navigate" in client) {
+            return client.navigate(urlToOpen).then(() => client.focus());
+          }
           return client.focus();
         }
       }

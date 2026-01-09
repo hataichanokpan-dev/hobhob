@@ -207,11 +207,44 @@ export async function POST(request: NextRequest) {
       circleName,
     };
 
-    // Generate notification text based on status
-    const title = `${emoji} ${fromUserName} sent you an emoji!`;
-    const body = status === "Complete"
-      ? "They see you've completed all your habits today! 🎉"
-      : "Keep going! You've got this! 💪";
+    // Generate notification text based on status - more cute and professional
+    let title: string;
+    let body: string;
+
+    if (status === "Complete") {
+      // Completed habits - celebrate!
+      const celebrationTitles = [
+        `${emoji} Amazing work today!`,
+        `${emoji} You're on fire!`,
+        `${emoji} Crushed it!`,
+      ];
+      const celebrationBodies = [
+        `${fromUserName} noticed you completed all habits! ✨`,
+        `${fromUserName} is celebrating your progress! 🌟`,
+        `${fromUserName} says you're doing incredible! 💫`,
+      ];
+      title = celebrationTitles[Math.floor(Math.random() * celebrationTitles.length)];
+      body = celebrationBodies[Math.floor(Math.random() * celebrationBodies.length)];
+    } else {
+      // Still working - encourage!
+      const encourageTitles = [
+        `${emoji} Little cheer for you!`,
+        `${emoji} You've got this!`,
+        `${emoji} Keep pushing!`,
+      ];
+      const encourageBodies = [
+        `${fromUserName} believes in you! 💪`,
+        `${fromUserName} sent some encouragement! 🌈`,
+        `${fromUserName} is rooting for you! ⭐`,
+      ];
+      title = encourageTitles[Math.floor(Math.random() * encourageTitles.length)];
+      body = encourageBodies[Math.floor(Math.random() * encourageBodies.length)];
+    }
+
+    // Add circle context if available
+    if (circleName) {
+      body += ` From "${circleName}"`;
+    }
 
     // Send to all enabled subscriptions
     let sentCount = 0;
