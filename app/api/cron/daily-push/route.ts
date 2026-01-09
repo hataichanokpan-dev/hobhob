@@ -15,24 +15,14 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getDatabase } from "firebase-admin/database";
-import { getEnabledPushSubscriptions } from "@/lib/db";
+import { adminDb } from "@/lib/firebase/admin";
+import { getEnabledPushSubscriptionsServer } from "@/lib/db/server";
 import webpush from "web-push";
 import type { DailyNotificationPayload } from "@/types";
 
 // Environment variables
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:you@domain.com";
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || "";
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "";
 const CRON_SECRET = process.env.CRON_SECRET || "";
 const APP_ORIGIN = process.env.APP_ORIGIN || "";
-
-// Configure web-push
-webpush.setVapidDetails(
-  VAPID_SUBJECT,
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
 
 /**
  * Verify cron secret to prevent unauthorized access
@@ -119,13 +109,30 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Configure web-push (only when actually handling a request)
+  const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:you@domain.com";
+  const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
+  const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "";
+
+  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    console.error("[Cron] VAPID keys not configured");
+    return NextResponse.json(
+      { error: "VAPID keys not configured" },
+      { status: 500 }
+    );
+  }
+
+  webpush.setVapidDetails(
+    VAPID_SUBJECT,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+  );
+
   console.log("[Cron] Starting daily push notification job");
 
   try {
-    const db = getDatabase();
-
-    // Get all users
-    const usersSnapshot = await db.ref("users").once("value");
+    // Get all users using adminDb (server-side Firebase Admin SDK)
+    const usersSnapshot = await adminDb.ref("users").once("value");
     if (!usersSnapshot.exists()) {
       console.log("[Cron] No users found");
       return NextResponse.json({ success: true, sent: 0 });
@@ -157,7 +164,7 @@ export async function GET(request: NextRequest) {
         const today = getTodayInTimezone(timezone);
 
         // Check if we already sent notification for today
-        const lastNotificationRef = db.ref(`users/${uid}/lastPushNotification`);
+        const lastNotificationRef = adminDb.ref(`users/${uid}/lastPushNotification`);
         const lastNotificationSnapshot = await lastNotificationRef.once("value");
 
         if (lastNotificationSnapshot.exists()) {
@@ -223,7 +230,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Get enabled push subscriptions
-        const subscriptions = await getEnabledPushSubscriptions(uid);
+        const subscriptions = await getEnabledPushSubscriptionsServer(uid);
         if (Object.keys(subscriptions).length === 0) {
           console.log(`[Cron] User ${uid} has no enabled push subscriptions`);
           continue;
@@ -250,7 +257,8 @@ export async function GET(request: NextRequest) {
         // Send to all enabled subscriptions
         let sentForUser = 0;
         for (const [deviceId, subData] of Object.entries(subscriptions)) {
-          const success = await sendPushNotification(subData.subscription, {
+          const subscriptionData = subData as { subscription: any; enabled: boolean };
+          const success = await sendPushNotification(subscriptionData.subscription, {
             title: "HobHob Daily Summary",
             body,
             icon: `${APP_ORIGIN}/icons/icon-192x192.png`,
