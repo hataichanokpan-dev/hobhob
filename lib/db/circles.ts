@@ -1225,8 +1225,20 @@ export async function getCircleMembers(
 }
 
 /**
+ * Get today's date string in UTC (yyyy-mm-dd)
+ */
+function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Send encouragement emoji to a member
  * Users can only send 1 emoji per emoji type per day to each recipient
+ * Encouragements are stored by date and reset at the start of each new day
  */
 export async function sendEncouragement(
   fromUserId: string,
@@ -1235,22 +1247,22 @@ export async function sendEncouragement(
   emoji: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Check if user has already sent this emoji to this recipient today
-    const encouragementsRef = getCircleEncouragementsRef(circleId);
-    const encouragementsSnapshot = await get(encouragementsRef);
+    // Get today's date string
+    const today = getTodayDateString();
 
-    if (encouragementsSnapshot.exists()) {
-      const encouragements = encouragementsSnapshot.val();
-      const today = Date.now();
-      const oneDayAgo = today - 24 * 60 * 60 * 1000;
+    // Check if user has already sent this emoji to this recipient today
+    const todayEncouragementsRef = ref(database, `circles/${circleId}/encouragements/${today}`);
+    const todayEncouragementsSnapshot = await get(todayEncouragementsRef);
+
+    if (todayEncouragementsSnapshot.exists()) {
+      const encouragements = todayEncouragementsSnapshot.val();
 
       // Check if user already sent this specific emoji to this recipient today
       const alreadySent = Object.values(encouragements).some(
         (enc: any) =>
           enc.fromUserId === fromUserId &&
           enc.toUserId === toUserId &&
-          enc.emoji === emoji &&
-          enc.createdAt > oneDayAgo
+          enc.emoji === emoji
       );
 
       if (alreadySent) {
@@ -1259,7 +1271,7 @@ export async function sendEncouragement(
     }
 
     const encouragementId = `${fromUserId}_${toUserId}_${emoji}_${Date.now()}`;
-    const encouragementRef = ref(database, `circles/${circleId}/encouragements/${encouragementId}`);
+    const encouragementRef = ref(database, `circles/${circleId}/encouragements/${today}/${encouragementId}`);
 
     const encouragement: any = {
       id: encouragementId,
@@ -1271,15 +1283,6 @@ export async function sendEncouragement(
     };
 
     await set(encouragementRef, encouragement);
-
-    // Auto-delete after 24 hours
-    setTimeout(async () => {
-      try {
-        await remove(encouragementRef);
-      } catch (err) {
-        // Ignore deletion errors
-      }
-    }, 24 * 60 * 60 * 1000);
 
     return { success: true };
   } catch (error) {
@@ -1298,16 +1301,12 @@ export function getEmojisSentToUserToday(
 ): string[] {
   if (!encouragements) return [];
 
-  const today = Date.now();
-  const oneDayAgo = today - 24 * 60 * 60 * 1000;
-
   const sentEmojis: string[] = [];
   for (const enc of Object.values(encouragements)) {
     const encouragement = enc as any;
     if (
       encouragement.fromUserId === fromUserId &&
-      encouragement.toUserId === toUserId &&
-      encouragement.createdAt > oneDayAgo
+      encouragement.toUserId === toUserId
     ) {
       sentEmojis.push(encouragement.emoji);
     }
@@ -1317,14 +1316,17 @@ export function getEmojisSentToUserToday(
 }
 
 /**
- * Get encouragements reference for a circle
+ * Get encouragements reference for a circle and date
+ * @param circleId - The circle ID
+ * @param date - Optional date string (defaults to today)
  */
-export function getCircleEncouragementsRef(circleId: string) {
-  return ref(database, `circles/${circleId}/encouragements`);
+export function getCircleEncouragementsRef(circleId: string, date?: string) {
+  const dateKey = date || getTodayDateString();
+  return ref(database, `circles/${circleId}/encouragements/${dateKey}`);
 }
 
 /**
- * Listen to encouragements for a circle
+ * Listen to encouragements for a circle (today's only)
  */
 export function listenToCircleEncouragements(
   circleId: string,
@@ -1337,6 +1339,7 @@ export function listenToCircleEncouragements(
 
 /**
  * Get encouragements received by a user today
+ * This function now expects encouragements from a single date
  */
 export function getTodaysEncouragements(
   encouragements: Record<string, any> | null,
@@ -1344,10 +1347,23 @@ export function getTodaysEncouragements(
 ): any[] {
   if (!encouragements) return [];
 
-  const today = Date.now();
-  const oneDayAgo = today - 24 * 60 * 60 * 1000;
-
   return Object.values(encouragements).filter(
-    (enc: any) => enc.toUserId === userId && enc.createdAt > oneDayAgo
+    (enc: any) => enc.toUserId === userId
   );
+}
+
+/**
+ * Delete all encouragements for a specific date
+ * Used for cleanup when a new day starts
+ */
+export async function deleteEncouragementsForDate(
+  circleId: string,
+  date: string
+): Promise<void> {
+  try {
+    const encouragementsRef = ref(database, `circles/${circleId}/encouragements/${date}`);
+    await remove(encouragementsRef);
+  } catch (error) {
+    console.error(`Error deleting encouragements for ${date}:`, error);
+  }
 }

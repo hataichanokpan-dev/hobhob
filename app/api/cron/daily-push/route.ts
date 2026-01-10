@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
-import { getEnabledPushSubscriptionsServer } from "@/lib/db/server";
+import { getEnabledPushSubscriptionsServer, deleteYesterdaysEncouragements } from "@/lib/db/server";
 import webpush from "web-push";
 import type { DailyNotificationPayload } from "@/types";
 
@@ -129,6 +129,18 @@ export async function GET(request: NextRequest) {
   );
 
   console.log("[Cron] Starting daily push notification job");
+
+  // Clean up yesterday's encouragements (run once per day at UTC hour 0)
+  const currentUTCHour = new Date().getUTCHours();
+  if (currentUTCHour === 0) {
+    console.log("[Cron] Running daily encouragement cleanup");
+    try {
+      await deleteYesterdaysEncouragements();
+      console.log("[Cron] Encouragement cleanup completed");
+    } catch (error) {
+      console.error("[Cron] Error during encouragement cleanup:", error);
+    }
+  }
 
   try {
     // Get all users using adminDb (server-side Firebase Admin SDK)

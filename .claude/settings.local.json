@@ -25,7 +25,9 @@
       "Bash(del:*)",
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(Select-String:*)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }
